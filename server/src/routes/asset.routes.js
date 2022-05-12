@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {getAssets, getOneAsset, addAsset, updateAsset, trackAsset, } = require('../controllers/asset.controller');
+const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset } = require('../controllers/asset.controller');
 
 /**
  * @route     POST /api/v1/asset
