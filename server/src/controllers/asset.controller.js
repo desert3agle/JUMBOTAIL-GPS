@@ -1,7 +1,5 @@
 const { Asset, Point } = require('../models/asset.model');
 
-
-
 exports.getAssets = async(req, res) => {
     try{
         let {startTime, endTime, assetType, maxLimit} = req.query
@@ -46,7 +44,6 @@ exports.getAssets = async(req, res) => {
         let response  = [];
         
         if(assetType !== undefined){
-            // empty array if type query has garbage
             for(let i = 0; i < assets.length; i++){
                 if(assets[i].assetType === assetType) response.push(assets[i]);
             }
@@ -60,7 +57,6 @@ exports.getAssets = async(req, res) => {
 
 exports.addAsset = async(req, res) => {
     try{
-        // every thing is validated
         const asset = new Asset({
             name : req.body.name,
             assetType : req.body.assetType,
@@ -79,18 +75,19 @@ exports.addAsset = async(req, res) => {
 };
 
 exports.updateAsset = async(req, res) => {
-    try{
-        // for validation of data temporary, will write exclusive
 
-        const loactionPoint = new Point({
+    try{
+        const locationPoint = new Point({
             type : req.body.location.type,
             coordinates : req.body.location.coordinates,
             description : req.body.location.description
         });
-        await loactionPoint.save();
-        
-        // validation of id ?
+        await Point.validate(locationPoint);
+    } catch(err){
+        return res.status(400).type("txt").send(err.message);
+    }
 
+    try{
         const response = await Asset.updateOne(
             { _id: req.params.id },
             {
@@ -109,7 +106,6 @@ exports.updateAsset = async(req, res) => {
 
 exports.getOneAsset = async(req, res) => {
     try{
-        // validate id ?
         let response = await Asset.findById(req.params.id);
         res.status(200).json(response);
    }catch(err) {
@@ -120,7 +116,7 @@ exports.getOneAsset = async(req, res) => {
 exports.trackAsset = async(req, res) => {
     try{
         let endDate = new Date(), startDate = new Date(endDate.getTime() - 1000 * 86400);
-        // validate id ?
+
         let response = await Asset.find(
             { _id: req.params.id },
             {route : [{
