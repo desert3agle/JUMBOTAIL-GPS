@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset } = require('../controllers/asset.controller');
+const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset, deleteAsset } = require('../controllers/asset.controller');
 
 /**
  * @route     POST /api/v1/asset
  * @desc      adds asset to database
- * @access    Private
+ * @access    Public
  */
 router.post('/', addAsset);
 
@@ -37,10 +37,17 @@ router.get('/:id/track', trackAsset);
 /**
  * @route     PATCH /api/v1/asset/:id
  * @desc      updates current location of an asset
- * @access    Private
+ * @access    Public
  */
 router.patch('/:id', updateAsset);
 
+
+/**
+ * @route     DELETE /api/v1/asset/:id
+ * @desc      deletes an asset
+ * @access    Public
+ */
+router.delete('/:id', deleteAsset);
 
 
 module.exports = router;

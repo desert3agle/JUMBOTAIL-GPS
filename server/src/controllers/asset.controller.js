@@ -1,45 +1,67 @@
-const { Asset, Point } = require('../models/asset.model');
+const Asset = require('../models/asset.model');
+const { isIsoDate } = require('../utils/validation.utils');
+const mongoose = require('mongoose');
+
+
+
+exports.addAsset = async(req, res) => {
+    try{
+        const asset = new Asset({
+            name : req.body.name,
+            assetType : req.body.assetType,
+            location : {
+                type : req.body.location.type,
+                coordinates : req.body.location.coordinates,
+                description : req.body.location.description
+            }
+        });
+        asset.route.push(req.body.location);
+        let saved = await asset.save();
+        
+        res.status(201).json({ id: saved._id });
+    }catch(err){
+        res.status(400).type("txt").send(err.message);
+    }
+};
 
 exports.getAssets = async(req, res) => {
     try{
         let {startTime, endTime, assetType, maxLimit} = req.query
         
-        let assets = [];
-
         if(maxLimit === undefined) maxLimit = 100;
 
-        if(startTime !== undefined || endTime !== undefined){
-
-            function isIsoDate(str) {
-                if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
-                let d = new Date(str); 
-                return d.toISOString()===str;
+        if(startTime){
+            if(isIsoDate(startTime)) startTime =  new Date(startTime);
+            else {
+                return res.status(400).send({
+                    message: "Invalid Start Time"
+                });
             }
-
-            if(startTime){
-                (isIsoDate(startTime)) ? startTime =  new Date(startTime) : startTime = new Date(-8640000000000000);
-            } else {
-                startTime = new Date(-8640000000000000);
-            }
-
-            if(endTime){
-                (isIsoDate(endTime)) ? endTime = new Date(endTime) : endTime = new Date();
-            } else {
-                endTime = new Date();
-            }
-
-            assets = await Asset.find({
-                updatedAt : {
-                    $gte : startTime, 
-                    $lte : endTime
-                }
-            })
-            .limit(maxLimit)
-            .sort({updatedAt : -1});
-
         } else {
-            assets = await Asset.find().limit(maxLimit).sort({updatedAt : -1})
+            startTime = new Date(-8640000000000000);
         }
+
+        if(endTime){
+            if(isIsoDate(endTime)) endTime = new Date(endTime);
+            else {
+                return res.status(400).send({
+                    message: "Invalid End Time"
+                });
+            }
+        } else {
+            endTime = new Date();
+        }
+
+        
+        let assets = await Asset.find({
+            updatedAt : {
+                $gte : startTime, 
+                $lte : endTime
+            }
+        })
+        .limit(maxLimit)
+        .sort({updatedAt : -1});
+
 
         let response  = [];
         
@@ -55,76 +77,126 @@ exports.getAssets = async(req, res) => {
     }
 };
 
-exports.addAsset = async(req, res) => {
+exports.getOneAsset = async(req, res) => {
     try{
-        const asset = new Asset({
-            name : req.body.name,
-            assetType : req.body.assetType,
-            location : {
-                type : req.body.location.type,
-                coordinates : req.body.location.coordinates,
-                description : req.body.location.description
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).send({
+                message: "Invalid Asset ID"
+            })
+        }
+        let asset = await Asset.findById(req.params.id);
+
+        if(!asset){
+            return res.status(404).send({
+                message: "Asset with given ID not found"
+            })
+        }
+
+        res.status(200).json(asset);
+   }catch(err) {
+        res.status(500).type("txt").send(err.message);
+   }
+};
+
+
+exports.trackAsset = async(req, res) => {
+    try{
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).send({
+                message: "Invalid Asset ID"
+            })
+        }
+
+        let asset = await Asset.findById(req.params.id);
+
+        if(!asset){
+            return res.status(404).send({
+                message: "Asset with given ID not found"
+            })
+        }
+        
+        let {startTime, endTime} = req.query;
+
+        if(endTime){
+            if(isIsoDate(endTime)) endTime = new Date(endTime);
+            else {
+                return res.status(400).send({
+                    message: "Invalid End Time"
+                })
             }
-        });
+        } else {
+            endTime = new Date();
+        }
+
+        if(startTime){
+            if(isIsoDate(startTime)) startTime =  new Date(startTime);
+            else {
+                return res.status(400).send({
+                    message: "Invalid Start Time"
+                })
+            }
+        } else {
+            startTime = new Date(endTime.getTime() - 1000 * ( 24 * 60 * 60 ));
+        }
+        
+        const response = [];
+
+        for(let i = 0; i < asset.route.length; i++) {
+            let currTime = asset.route[i].createdAt;
+            if(currTime >= startTime && currTime <= endTime) response.push(asset.location);
+        }
+
+        res.status(200).json(response);
+   }catch(err) {
+        res.status(500).type("txt").send(err.message);
+   }
+};
+
+exports.updateAsset = async (req, res) => {
+    try{
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).send({
+                message: "Invalid Asset ID"
+            })
+        }
+        let asset = await Asset.findById(req.params.id);
+
+        if(!asset){
+            return res.status(404).send({
+                message: "Asset with given ID not found"
+            })
+        }
+
+        asset.location = req.body.location;
         asset.route.push(req.body.location);
-        let saved = await asset.save();
-        res.status(201).json({ id: saved._id });
+        
+        await asset.save();
+
+        // check geofence and georoute
+
+        res.status(201).send('updated');
     }catch(err){
         res.status(400).type("txt").send(err.message);
     }
 };
 
-exports.updateAsset = async(req, res) => {
-
+exports.deleteAsset = async (req, res) => {
     try{
-        const locationPoint = new Point({
-            type : req.body.location.type,
-            coordinates : req.body.location.coordinates,
-            description : req.body.location.description
-        });
-        await Point.validate(locationPoint);
-    } catch(err){
-        return res.status(400).type("txt").send(err.message);
-    }
-
-    try{
-        const response = await Asset.updateOne(
-            { _id: req.params.id },
-            {
-            $set: {
-                location : req.body.location
-            },
-            $push: {
-                route: req.body.location
-            }
-        });
-        res.status(201).send('updated');
-    }catch(err){
-        res.status(404).type("txt").send(err.message);
-    }
-};
-
-exports.getOneAsset = async(req, res) => {
-    try{
-        let response = await Asset.findById(req.params.id);
-        res.status(200).json(response);
-   }catch(err) {
-        res.status(404).type("txt").send(err.message);
-   }
-};
-
-exports.trackAsset = async(req, res) => {
-    try{
-        let endDate = new Date(), startDate = new Date(endDate.getTime() - 1000 * 86400);
-
-        let response = await Asset.find(
-            { _id: req.params.id },
-            {route : [{
-                    createdAt : {$gte : startDate, $lte : endDate}
-                }]
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).send({
+                message: "Invalid Asset ID"
             })
-        res.status(200).json(response);
-   }catch(err) {
-        res.status(404).type("txt").send(err.message);
-   }
+        }
+        let asset = await Asset.findById(req.params.id);
+
+        if(!asset){
+            return res.status(404).send({
+                message: "Asset with given ID not found"
+            })
+        }
+        await Asset.deleteOne({ _id: req.params.id });
+        res.status(200).send('deleted');
+    }catch(err){
+        res.status(500).type("txt").send(err.message);
+    }
 }

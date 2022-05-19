@@ -3,24 +3,35 @@ const mongoose = require('mongoose');
 
 const pointSchema = new mongoose.Schema({
     type: {
-      type: String,
-      enum: ['Point'],
-      required: true
+        type: String,
+        enum: ['Point'],
+        required: true
     },
     coordinates: {
-      type: [Number],
-      index: '2dsphere',
-      required: true
+        type: [Number],
+        index: '2dsphere',
+        required: true
     },
     description: {
-      type : String,
-      //required : true
+        type : String,
+        //required : true
     }
-  });
+});
 
 pointSchema.set('timestamps', true);
 
-const Point = mongoose.model('Point', pointSchema);
+const polygonSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ['Polygon'],
+        required: true
+    },
+    coordinates: {
+        type: [[[Number]]],
+        index: '2dsphere',
+        required: true
+    }
+});
 
 const assetSchema = new mongoose.Schema({
     name: {
@@ -33,17 +44,18 @@ const assetSchema = new mongoose.Schema({
         type: String,
         enum: ['truck', 'salesman'],
         required: true
-    }
+    },
+    geofence: polygonSchema
 })
 
 assetSchema.set('timestamps', true);
 
+
+
+
 const Asset = mongoose.model('Asset', assetSchema);
 
 
-module.exports = {
-  Asset,
-  Point
-};
+module.exports = Asset
 
 
