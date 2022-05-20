@@ -143,7 +143,7 @@ exports.trackAsset = async(req, res) => {
 
         for(let i = 0; i < asset.route.length; i++) {
             let currTime = asset.route[i].createdAt;
-            if(currTime >= startTime && currTime <= endTime) response.push(asset.location);
+            if(currTime >= startTime && currTime <= endTime) response.push(asset.route[i]);
         }
 
         res.status(200).json(response);
