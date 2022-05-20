@@ -4,4 +4,9 @@ exports.isIsoDate = (str) => {
     return d.toISOString()===str;
 }
 
-//baki bhi add hoga idhar
+exports.isValidMail = (str) => {
+    if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(str)){
+        return true;
+    }
+    return false;
+}
