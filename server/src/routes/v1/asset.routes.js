@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset, deleteAsset } = require('../controllers/asset.controller');
+const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset, deleteAsset } = require('../../controllers/asset.controller');
+const { addGeofence } = require('../../controllers/geofence.controller');
+const auth = require('../../middlewares/auth');
+
 
 /**
  * @route     POST /api/v1/asset
@@ -15,7 +18,7 @@ router.post('/', addAsset);
  * @desc      gets all asset and filter them
  * @access    Private
  */
-router.get('/list', getAssets);
+router.get('/list', auth, getAssets);
 
 
 /**
@@ -23,7 +26,7 @@ router.get('/list', getAssets);
  * @desc      gets one specific asset
  * @access    Private
  */
-router.get('/:id', getOneAsset);
+router.get('/:id', auth, getOneAsset);
 
 
 /**
@@ -31,7 +34,7 @@ router.get('/:id', getOneAsset);
  * @desc      tracks route of an asset (24 hr)
  * @access    Private
  */
-router.get('/:id/track', trackAsset);
+router.get('/:id/track', auth, trackAsset);
 
 
 /**
@@ -39,7 +42,7 @@ router.get('/:id/track', trackAsset);
  * @desc      updates current location of an asset
  * @access    Public
  */
-router.patch('/:id', updateAsset);
+router.patch('/:id', auth, updateAsset);
 
 
 /**
@@ -47,7 +50,7 @@ router.patch('/:id', updateAsset);
  * @desc      deletes an asset
  * @access    Public
  */
-router.delete('/:id', deleteAsset);
+router.delete('/:id', auth, deleteAsset);
 
 
 module.exports = router;
