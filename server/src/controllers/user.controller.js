@@ -1,7 +1,14 @@
 const User = require("../models/user.model");
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { isValidMail } = require('../utils/validation.utils');
+
+
+const maxAge = 7 * 24 * 60 * 60;
+    const createToken = (id) => {
+    return jwt.sign({ id }, process.env.TOKEN_KEY, {
+        expiresIn: maxAge
+    });
+};
 
 exports.addUser = async(req, res) => {
     try {
@@ -26,25 +33,18 @@ exports.addUser = async(req, res) => {
             return res.status(409).send("User Already Exist. Please Login");
         }
 
-        encryptedPassword = await bcrypt.hash(password, 10);
-
-
         const user = await User.create({
             first_name,
             last_name,
             email: email.toLowerCase(), 
-            password: encryptedPassword,
+            password
         });
 
-        const token = jwt.sign(
-            { user_id: user._id, email },
-            process.env.TOKEN_KEY,
-            {
-            expiresIn: "2h",
-            }
-        );
-        user.token = token;
-        res.status(201).json(user);
+        const token = createToken(user._id);
+
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        res.status(201).json({ user, token });
+
     } catch (err) {
         res.status(500).send("server error");
     }
@@ -61,33 +61,40 @@ exports.loginUser = async(req, res) => {
         }
 
         if(!isValidMail(email)){
-            return res.status(400).send("invalid mail");
+            return res.status(400).send("invalid Mail ID");
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.login(email, password);
+        const token = createToken(user._id);
 
-        if(!user){
-            return res.status(404).send({
-                message: "user not found"
-            })
-        };
-        let isValid = await bcrypt.compare(password, user.password);
-        if (isValid) {
-            const token = jwt.sign(
-            { user_id: user._id, email },
-            process.env.TOKEN_KEY,
-            {
-                expiresIn: "2h",
-            }
-        );
-        user.token = token;
-
-        res.status(200).json(user);
-    }
-    else{
-        return res.status(400).send("Invalid Credentials");
-    }
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        res.status(200).json({ user, token });
     } catch (err) {
-        res.status(500).send("server error");
+        res.status(400).send(err.message);
     }
+}
+
+
+exports.checkUser = async (req, res ) => {
+    try{
+        let currentUser;
+
+        if (req.cookies.jwt) {
+            const token = req.cookies.jwt;
+            const decoded = jwt.verify(token, process.env.TOKEN_KEY);
+
+            currentUser = await User.findById(decoded.id);
+        } else {
+            currentUser =  null;
+        }    
+        res.status(200).send({ currentUser });
+    }catch(err){
+        res.status(500).send(err.message);
+    }
+}
+
+
+exports.logoutUser = (req, res) => {
+    res.cookie('jwt', '', { maxAge: 1 });
+    res.status(200).send('user is logged out');
 }
