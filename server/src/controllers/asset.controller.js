@@ -1,8 +1,8 @@
 const Asset = require('../models/asset.model');
 const { isIsoDate } = require('../utils/validation.utils');
 const mongoose = require('mongoose');
-
-
+const { containsLocation } = require('../utils/geofence.utils');
+ 
 
 exports.addAsset = async(req, res) => {
     try{
@@ -20,7 +20,7 @@ exports.addAsset = async(req, res) => {
         
         res.status(201).json({ id: saved._id });
     }catch(err){
-        res.status(400).type("txt").send(err.message);
+        res.status(400).send({message :err.message});
     }
 };
 
@@ -73,7 +73,7 @@ exports.getAssets = async(req, res) => {
 
         res.status(200).json(response);
     }catch(err){
-        res.status(500).json({err : err.message});
+        res.status(500).send({err : err.message});
     }
 };
 
@@ -94,7 +94,7 @@ exports.getOneAsset = async(req, res) => {
 
         res.status(200).json(asset);
    }catch(err) {
-        res.status(500).type("txt").send(err.message);
+        res.status(500).send({ message :err.message });
    }
 };
 
@@ -148,7 +148,7 @@ exports.trackAsset = async(req, res) => {
 
         res.status(200).json(response);
    }catch(err) {
-        res.status(500).type("txt").send(err.message);
+        res.status(500).send({ message :err.message });
    }
 };
 
@@ -164,7 +164,13 @@ exports.updateAsset = async (req, res) => {
         if(!asset){
             return res.status(404).send({
                 message: "Asset with given ID not found"
-            })
+            });
+        }
+
+        if(!req.body.location){
+            return res.status(400).send({
+                message: "please provide a location"
+            });
         }
 
         asset.location = req.body.location;
@@ -172,11 +178,20 @@ exports.updateAsset = async (req, res) => {
         
         await asset.save();
 
-        // check geofence and georoute
+        //geofence
+        if(asset.geofence.coordinates.length > 0){
+            let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates[0];
 
-        res.status(201).send('updated');
+            if(containsLocation(latitude, longitude, polygon)){
+                console.log("andar hai");
+            }else{
+                console.log("bahar hai");
+            }
+        }
+
+        res.status(201).send({ message : 'updated' });
     }catch(err){
-        res.status(400).type("txt").send(err.message);
+        res.status(400).send({ message :err.message });
     }
 };
 
@@ -195,8 +210,8 @@ exports.deleteAsset = async (req, res) => {
             })
         }
         await Asset.deleteOne({ _id: req.params.id });
-        res.status(200).send('deleted');
+        res.status(200).send({ message :'deleted' });
     }catch(err){
-        res.status(500).type("txt").send(err.message);
+        res.status(500).send({ message :err.message });
     }
 }

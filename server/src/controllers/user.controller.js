@@ -16,21 +16,21 @@ exports.addUser = async(req, res) => {
         const { first_name, last_name, email, password } = req.body;
 
         if (!(email && password && first_name && last_name)) {
-            return res.status(400).send("All input is required");
+            return res.status(400).send({ message :"All input is required"});
         }
 
         if(!isValidMail(email)){
-            return res.status(400).send("invalid mail");
+            return res.status(400).send({ message :"invalid mail"});
         }
 
         if(password.length < 6){
-            return res.status(400).send("password is too small");
+            return res.status(400).send({ message :"password is too small"});
         }
 
         const oldUser = await User.findOne({ email });
 
         if (oldUser) {
-            return res.status(409).send("User Already Exist. Please Login");
+            return res.status(409).send({ message :"User Already Exist. Please Login" });
         }
 
         const user = await User.create({
@@ -46,7 +46,7 @@ exports.addUser = async(req, res) => {
         res.status(201).json({ user, token });
 
     } catch (err) {
-        res.status(500).send("server error");
+        res.status(500).send({ message : err.message});
     }
 }
 
@@ -57,11 +57,11 @@ exports.loginUser = async(req, res) => {
         const { email, password } = req.body;
 
         if (!(email && password)) {
-            res.status(400).send("All input is required");
+            res.status(400).send({ message : "All input is required"});
         }
 
         if(!isValidMail(email)){
-            return res.status(400).send("invalid Mail ID");
+            return res.status(400).send({ message :"invalid Mail ID" });
         }
 
         const user = await User.login(email, password);
@@ -70,7 +70,7 @@ exports.loginUser = async(req, res) => {
         res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
         res.status(200).json({ user, token });
     } catch (err) {
-        res.status(400).send(err.message);
+        res.status(400).send({ message :err.message });
     }
 }
 
@@ -87,14 +87,14 @@ exports.checkUser = async (req, res ) => {
         } else {
             currentUser =  null;
         }    
-        res.status(200).send({ currentUser });
+        res.status(200).json(currentUser);
     }catch(err){
-        res.status(500).send(err.message);
+        res.status(500).send({ message :err.message });
     }
 }
 
 
 exports.logoutUser = (req, res) => {
     res.cookie('jwt', '', { maxAge: 1 });
-    res.status(200).send('user is logged out');
+    res.status(200).send({ message :'user is logged out' });
 }
