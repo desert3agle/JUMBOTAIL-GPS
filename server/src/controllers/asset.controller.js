@@ -20,7 +20,7 @@ exports.addAsset = async(req, res) => {
         
         res.status(201).json({ id: saved._id });
     }catch(err){
-        res.status(400).send({message :err.message});
+        res.status(400).send({message : err.message});
     }
 };
 
@@ -94,7 +94,7 @@ exports.getOneAsset = async(req, res) => {
 
         res.status(200).json(asset);
    }catch(err) {
-        res.status(500).send({ message :err.message });
+        res.status(500).send({ message : err.message });
    }
 };
 
@@ -148,7 +148,7 @@ exports.trackAsset = async(req, res) => {
 
         res.status(200).json(response);
    }catch(err) {
-        res.status(500).send({ message :err.message });
+        res.status(500).send({ message : err.message });
    }
 };
 
@@ -191,7 +191,7 @@ exports.updateAsset = async (req, res) => {
 
         res.status(201).send({ message : 'updated' });
     }catch(err){
-        res.status(400).send({ message :err.message });
+        res.status(400).send({ message : err.message });
     }
 };
 
@@ -210,8 +210,8 @@ exports.deleteAsset = async (req, res) => {
             })
         }
         await Asset.deleteOne({ _id: req.params.id });
-        res.status(200).send({ message :'deleted' });
+        res.status(200).send({ message : 'deleted' });
     }catch(err){
-        res.status(500).send({ message :err.message });
+        res.status(500).send({ message : err.message });
     }
 }
