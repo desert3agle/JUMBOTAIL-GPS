@@ -53,4 +53,6 @@ router.patch('/:id', updateAsset);
 router.delete('/:id', deleteAsset);
 
 
+router.patch('/:id/geofence', addGeofence);
+
 module.exports = router;

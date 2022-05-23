@@ -32,6 +32,18 @@ const polygonSchema = new mongoose.Schema({
     }
 });
 
+const polylineSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ['LineString'],
+        required: true
+    },
+    coordinates: {
+        type: [[Number]],
+        required: true
+    }
+});
+
 const assetSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -44,7 +56,8 @@ const assetSchema = new mongoose.Schema({
         enum: ['truck', 'salesman'],
         required: true
     },
-    geofence: polygonSchema
+    geofence: polygonSchema,
+    georoute: polylineSchema
 })
 
 assetSchema.set('timestamps', true);
