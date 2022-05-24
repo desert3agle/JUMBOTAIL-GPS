@@ -18,16 +18,21 @@ exports.addGeofence = async (req, res) => {
             })
         }
 
-        if(!req.body.geofence){
+        const { deleteGeofence }  = req.query; 
+
+        if(!req.body.geofence && !deleteGeofence){
             return res.status(400).send({
-                message: "please provide a geofence"
+                message: "please provide a geofence or query"
             });
         }
-
-        asset.geofence = req.body.geofence;
+        
+        if(deleteGeofence){
+            asset.geofence = undefined;
+        }
+        else asset.geofence = req.body.geofence;
 
         await asset.save();
-        res.status(201).send({ message : 'updated' });
+        res.status(201).send({ message : 'geofence is modified' });
     }catch(err){
         res.status(400).send({ message : err.message })
     }

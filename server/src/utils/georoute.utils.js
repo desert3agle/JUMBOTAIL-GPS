@@ -102,7 +102,7 @@ const isOnSegmentGC = (lat1,  lng1,  lat2,  lng2, lat3,  lng3,  havTolerance) =>
     havAlongTrack13 = (havDist13 - havCrossTrack) / cosCrossTrack;
     havAlongTrack23 = (havDist23 - havCrossTrack) / cosCrossTrack;
     sinSumAlongTrack = sinSumFromHav(havAlongTrack13, havAlongTrack23);
-    return sinSumAlongTrack > 0;  // Compare with half-circle == PI using sign of sin().
+    return sinSumAlongTrack > 0; 
 }
 
 const locationIndexOnEdgeOrPath = (point, poly, closed, geodesic, toleranceEarth) => {
@@ -116,19 +116,19 @@ const locationIndexOnEdgeOrPath = (point, poly, closed, geodesic, toleranceEarth
     tolerance = toleranceEarth / EARTH_RADIUS;
     havTolerance = hav(tolerance);
 
-    lat3 = toRadians(point.latitude);
-    lng3 = toRadians(point.longitude);
+    lat3 = toRadians(point[1]); //latitude
+    lng3 = toRadians(point[0]); //longitude
     prev = poly[closed ? size - 1 : 0];
-    lat1 = toRadians(prev.latitude);
-    lng1 = toRadians(prev.longitude);
+    lat1 = toRadians(prev[1]); //latitude
+    lng1 = toRadians(prev[0]); //longitude
     idx = 0;
 
     if (geodesic) {
 
     for (let i = 0 ; i< poly.length ; i++) {
         let point2 = poly[i]
-        lat2 = toRadians(point2.latitude);
-        lng2 = toRadians(point2.longitude);
+        lat2 = toRadians(point2[1]); // latitude
+        lng2 = toRadians(point2[0]); // longitude
             if (isOnSegmentGC(lat1, lng1, lat2, lng2, lat3, lng3, havTolerance)) {
                 return Math.max(0, idx - 1);
             }
@@ -137,11 +137,7 @@ const locationIndexOnEdgeOrPath = (point, poly, closed, geodesic, toleranceEarth
             idx++;
         }
 } else {
-    // We project the points to mercator space, where the Rhumb segment is a straight line,
-    // and compute the geodesic distance between point3 and the closest point on the
-    // segment. This method is an approximation, because it uses "closest" in mercator
-    // space which is not "closest" on the sphere -- but the error is small because
-    // "tolerance" is small.
+
     minAcceptable = lat3 - tolerance;
     maxAcceptable = lat3 + tolerance;
 
@@ -154,16 +150,14 @@ const locationIndexOnEdgeOrPath = (point, poly, closed, geodesic, toleranceEarth
 
         let point2 = poly[i]
 
-        lat2 = toRadians(point2.latitude);
+        lat2 = toRadians(point2[1]); //latitude
         y2 = mercator(lat2);
-        lng2 = toRadians(point2.longitude);
+        lng2 = toRadians(point2[0]); //longitude
 
             if (Math.max(lat1, lat2) >= minAcceptable && Math.min(lat1, lat2) <= maxAcceptable) {
-                // We offset longitudes by -lng1; the implicit x1 is 0.
                 x2 = wrap(lng2 - lng1, -Math.PI, Math.PI);
                 x3Base = wrap(lng3 - lng1, -Math.PI, Math.PI);
                 xTry[0] = x3Base;
-                // Also explore wrapping of x3Base around the world in both directions.
                 xTry[1] = x3Base + 2 * Math.PI;
                 xTry[2] = x3Base - 2 * Math.PI;
 
@@ -203,16 +197,6 @@ const isLocationOnEdgeOrPath = (point,  poly,  closed, geodesic,  toleranceEarth
     return (idx >= 0);
 
 }
-
-/*
-point -> {lat,lng}
-polyline -> [{latitude: lat1, longitude: lng1}, {latitude: lat2, longitude: lng2},...]
-tolerance -> metres
-*/
-
-
-// geodesic me kya dalna h, point me to array daal denge
-//false and 30
 
 exports.isLocationOnPath = (point, polyline, geodesic, tolerance) => {
 

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset, deleteAsset } = require('../../controllers/asset.controller');
 const { addGeofence } = require('../../controllers/geofence.controller');
+const { addGeoroute } = require('../../controllers/georoute.controller');
 const { tokenVerify } = require('../../middlewares/auth');
 
 
@@ -54,5 +55,7 @@ router.delete('/:id', deleteAsset);
 
 
 router.patch('/:id/geofence', addGeofence);
+
+router.patch('/:id/georoute', addGeoroute);
 
 module.exports = router;
