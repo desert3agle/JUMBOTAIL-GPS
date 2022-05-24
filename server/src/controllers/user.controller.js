@@ -77,17 +77,16 @@ exports.loginUser = async(req, res) => {
 
 exports.checkUser = async (req, res ) => {
     try{
-        let currentUser;
+        let user;
 
         if (req.cookies.jwt) {
             const token = req.cookies.jwt;
             const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-
-            currentUser = await User.findById(decoded.id);
+            user = await User.findById(decoded.id);
         } else {
-            currentUser =  null;
+            user =  null;
         }    
-        res.status(200).json(currentUser);
+        res.status(200).json(user);
     }catch(err){
         res.status(500).send({ message : err.message });
     }

@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Enable cors
-app.use(cors());
+app.use(cors({origin : process.env.ORIGIN, credentials : true}));
 
 
 // Routes
