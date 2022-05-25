@@ -8043,6 +8043,11 @@ jest@26.6.0:
     import-local "^3.0.2"
     jest-cli "^26.6.0"
 
+js-cookie@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.1.tgz#9e39b4c6c2f56563708d7d31f6f5f21873a92414"
+  integrity sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -11041,6 +11046,13 @@ react-toastify@5.5.0:
     classnames "^2.2.6"
     prop-types "^15.7.2"
     react-transition-group "^4"
+
+react-toastify@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-9.0.1.tgz#2f3abd26a75efd55a82cb9c0a897c865218ea420"
+  integrity sha512-c2zeZHkCX+WXuItS/JRqQ/8CH8Qm/je+M0rt09xe9fnu5YPJigtNOdD8zX4fwLA093V2am3abkGfOowwpkrwOQ==
+  dependencies:
+    clsx "^1.1.1"
 
 react-transition-group@4.3.0:
   version "4.3.0"

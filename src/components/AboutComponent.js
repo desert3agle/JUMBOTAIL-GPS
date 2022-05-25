@@ -7,6 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { useHistory } from 'react-router-dom';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -41,6 +42,14 @@ const rows = [
 ];
 
 export default function ColumnGroupingTable(props) {
+    const history = useHistory();
+    if (props.user.userLoading) {
+        return (<div />);
+    }
+    if (props.user.userFailed === true || props.user.user === null) {
+        history.push("/login")
+        return (<div />);
+    }
     return (
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 700 }} aria-label="customized table">

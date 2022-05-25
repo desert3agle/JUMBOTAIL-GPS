@@ -12,6 +12,8 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useHistory } from 'react-router-dom';
+import useForm from "../hooks/useForm"
 
 function Copyright(props) {
     return (
@@ -28,14 +30,33 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignUpSide() {
+export default function SignUpSide(props) {
+    const history = useHistory();
+    const { values, handleChange } = useForm("registerValues", {
+        initialValues: {
+            firstName: "",
+            lastName: "",
+            email: "",
+            password: ""
+        }
+    });
+    if (props.user.userLoading === true) {
+        return (<div />);
+    }
+    if (props.user.user !== null) {
+        localStorage.removeItem("registerValues");
+        history.push("/dash");
+    }
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
+        const params = {
+            first_name: data.get('firstName'),
+            last_name: data.get('lastName'),
             email: data.get('email'),
             password: data.get('password'),
-        });
+        };
+        props.registerUser(params);
     };
 
     return (
@@ -82,6 +103,8 @@ export default function SignUpSide() {
                                         fullWidth
                                         id="firstName"
                                         label="First Name"
+                                        value={values.firstName}
+                                        onChange={handleChange}
                                         autoFocus
                                     />
                                 </Grid>
@@ -92,6 +115,8 @@ export default function SignUpSide() {
                                         id="lastName"
                                         label="Last Name"
                                         name="lastName"
+                                        value={values.lastName}
+                                        onChange={handleChange}
                                         autoComplete="family-name"
                                     />
                                 </Grid>
@@ -102,6 +127,8 @@ export default function SignUpSide() {
                                         id="email"
                                         label="Email Address"
                                         name="email"
+                                        value={values.email}
+                                        onChange={handleChange}
                                         autoComplete="email"
                                     />
                                 </Grid>
@@ -113,13 +140,9 @@ export default function SignUpSide() {
                                         label="Password"
                                         type="password"
                                         id="password"
+                                        value={values.password}
+                                        onChange={handleChange}
                                         autoComplete="new-password"
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <FormControlLabel
-                                        control={<Checkbox value="allowExtraEmails" color="primary" />}
-                                        label="I want to receive inspiration, marketing promotions and updates via email."
                                     />
                                 </Grid>
                             </Grid>
@@ -133,7 +156,7 @@ export default function SignUpSide() {
                             </Button>
                             <Grid container justifyContent="flex-end">
                                 <Grid item>
-                                    <Link href="#" variant="body2">
+                                    <Link href="/login" variant="body2">
                                         Already have an account? Sign in
                                     </Link>
                                 </Grid>

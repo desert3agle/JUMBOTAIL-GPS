@@ -12,6 +12,8 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useHistory } from 'react-router-dom';
+import useForm from "../hooks/useForm";
 
 function Copyright(props) {
     return (
@@ -28,14 +30,29 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignInSide() {
+export default function SignInSide(props) {
+    const { values, handleChange } = useForm("loginValues", {
+        initialValues: {
+            email: "",
+            password: ""
+        }
+    });
+    const history = useHistory();
+    if (props.user.userLoading === true) {
+        return (<div />);
+    }
+    if (props.user.user !== null) {
+        localStorage.removeItem("loginValues");
+        history.push("/dash");
+    }
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        const params = {
+            email: data.get("email"),
+            password: data.get("password")
+        }
+        props.loginUser(params);
     };
 
     return (
@@ -82,6 +99,8 @@ export default function SignInSide() {
                                 name="email"
                                 autoComplete="email"
                                 autoFocus
+                                value={values.email}
+                                onChange={handleChange}
                             />
                             <TextField
                                 margin="normal"
@@ -91,11 +110,9 @@ export default function SignInSide() {
                                 label="Password"
                                 type="password"
                                 id="password"
+                                value={values.password}
+                                onChange={handleChange}
                                 autoComplete="current-password"
-                            />
-                            <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
-                                label="Remember me"
                             />
                             <Button
                                 type="submit"
@@ -106,13 +123,8 @@ export default function SignInSide() {
                                 Sign In
                             </Button>
                             <Grid container>
-                                <Grid item xs>
-                                    <Link href="#" variant="body2">
-                                        Forgot password?
-                                    </Link>
-                                </Grid>
                                 <Grid item>
-                                    <Link href="#" variant="body2">
+                                    <Link href="/register" variant="body2">
                                         {"Don't have an account? Sign Up"}
                                     </Link>
                                 </Grid>

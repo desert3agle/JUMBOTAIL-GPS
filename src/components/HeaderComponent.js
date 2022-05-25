@@ -17,7 +17,7 @@ import { useHistory } from 'react-router-dom';
 const pages = ['Dashboard', 'Tracking'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-const ResponsiveAppBar = () => {
+const ResponsiveAppBar = (props) => {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -57,7 +57,9 @@ const ResponsiveAppBar = () => {
                                 textDecoration: 'none',
                             }}
                         >
-                            JumboTail GPS
+                            {
+                                (props.user.userLoading === false && props.user.user !== null) ? "JumboTail GPS" : "Welcome to JumboTail GPS"
+                            }
                         </Typography>
 
                         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -115,54 +117,63 @@ const ResponsiveAppBar = () => {
                         >
                             LOGO
                         </Typography>
-                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                            <Button
-                                onClick={() => {
-                                    history.push("/dashboard");
-                                }}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                Dashboard
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    history.push("/about");
-                                }}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                About
-                            </Button>
-                        </Box>
+                        {
+                            (props.user.userLoading === false && props.user.user !== null) && (
+                                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                                    <Button
+                                        onClick={() => {
+                                            history.push("/dashboard");
+                                        }}
+                                        sx={{ my: 2, color: 'white', display: 'block' }}
+                                    >
+                                        Dashboard
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            history.push("/about");
+                                        }}
+                                        sx={{ my: 2, color: 'white', display: 'block' }}
+                                    >
+                                        About
+                                    </Button>
+                                </Box>
+                            )
+                        }
 
-                        <Box sx={{ flexGrow: 0 }}>
-                            <Tooltip title="Open settings">
-                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                                </IconButton>
-                            </Tooltip>
-                            <Menu
-                                sx={{ mt: '45px' }}
-                                id="menu-appbar"
-                                anchorEl={anchorElUser}
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                keepMounted
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                open={Boolean(anchorElUser)}
-                                onClose={handleCloseUserMenu}
-                            >
-                                {settings.map((setting) => (
-                                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                        <Typography textAlign="center">{setting}</Typography>
-                                    </MenuItem>
-                                ))}
-                            </Menu>
-                        </Box>
+                        {
+                            (props.user.userLoading === false && props.user.user !== null) && (
+                                <Box sx={{ flexGrow: 0 }}>
+                                    <Tooltip title="Open settings">
+                                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Menu
+                                        sx={{ mt: '45px' }}
+                                        id="menu-appbar"
+                                        anchorEl={anchorElUser}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        open={Boolean(anchorElUser)}
+                                        onClose={handleCloseUserMenu}
+                                    >
+                                        <MenuItem onClick={() => {
+                                            props.logoutUser();
+                                            handleCloseUserMenu();
+                                        }}>
+                                            <Typography textAlign="center">Logout</Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </Box>
+                            )
+                        }
                     </Toolbar>
                 </Container>
             </AppBar>

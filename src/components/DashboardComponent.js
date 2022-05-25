@@ -106,7 +106,17 @@ function Dash(props) {
         }
     });
     const [currShown, setCurrShown] = useState([viewport.longitude, viewport.latitude]);
-
+    console.log(props.user);
+    if (props.user.userLoading) {
+        return (<div />);
+    }
+    if (props.user.userFailed === true || props.user.user === null) {
+        hist.push("/login")
+        return (<div />);
+    }
+    if (props.assets.assets.length === 0) {
+        return (<div />);
+    }
     return (
         <DeckGL ContextProvider={MapContext.Provider} initialViewState={{ ...viewport }} controller={true}
             style={{ width: "100vw", height: "100vh" }}

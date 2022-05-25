@@ -74,6 +74,14 @@ function App(props) {
         }
     });
     const [currShown, setCurrShown] = useState(null);
+
+    if (props.user.userLoading) {
+        return (<div />);
+    }
+    if (props.user.userFailed === true || props.user.user === null) {
+        history.push("/login")
+        return (<div />);
+    }
     return (
         <div>
             <DeckGL ContextProvider={MapContext.Provider} initialViewState={{ ...viewport }} controller={true}
