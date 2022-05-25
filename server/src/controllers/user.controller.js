@@ -57,7 +57,7 @@ exports.loginUser = async(req, res) => {
         const { email, password } = req.body;
 
         if (!(email && password)) {
-            res.status(400).send({ message : "All input is required"});
+            return res.status(400).send({ message : "All input is required"});
         }
 
         if(!isValidMail(email)){

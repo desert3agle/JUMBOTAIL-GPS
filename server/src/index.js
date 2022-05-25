@@ -8,7 +8,7 @@ const http = require('http')
 const socketio = require('socket.io')
 const server = http.createServer(app)
 const io = socketio(server)
-
+const morgan = require('morgan');
 
 // load env vars
 dotenv.config({ path: __dirname+'/config/config.env' });
@@ -26,6 +26,8 @@ io.on("connection", (socket) => {
     });
 });
 
+//morgan logger
+app.use(morgan('tiny'));
 
 // Body parser
 app.use(express.json());

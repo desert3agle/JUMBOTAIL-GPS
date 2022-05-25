@@ -1,5 +1,5 @@
 const Asset = require('../models/asset.model');
-const { isIsoDate } = require('../utils/validation.utils');
+const { isIsoDate, isValidLocation } = require('../utils/validation.utils');
 const mongoose = require('mongoose');
 const { containsLocation } = require('../utils/geofence.utils');
 const { isLocationOnPath } = require('../utils/georoute.utils'); 
@@ -173,6 +173,12 @@ exports.updateAsset = async (req, res) => {
             });
         }
 
+        if(!isValidLocation(req.body.location.coordinates)){
+            return res.status(400).send({
+                message: "invalid location coordinates, check range of coordinates or format of the payload"
+            });    
+        }
+        
         asset.location = req.body.location;
         asset.route.push(req.body.location);
         
@@ -180,26 +186,22 @@ exports.updateAsset = async (req, res) => {
 
         //geofence
         if(asset.geofence !== undefined){
-            if(asset.geofence.coordinates.length > 0){
-                let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates[0];
+            let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates;
 
-                if(containsLocation(latitude, longitude, polygon)){
-                    console.log("andar hai");
-                }else{
-                    console.log("bahar hai");
-                }
+            if(containsLocation(latitude, longitude, polygon)){
+                console.log("andar hai");
+            }else{
+                console.log("bahar hai");
             }
         }
         //georoute
         if(asset.georoute !== undefined){
-            if(asset.georoute.coordinates.length > 0){
-                let point = asset.location.coordinates, polyline = asset.georoute.coordinates;
-                if(isLocationOnPath(point, polyline, false, 30)){
-                    console.log("line par hai")
-                }
-                else {
-                    console.log("bahar hai");
-                }
+            let point = asset.location.coordinates, polyline = asset.georoute.coordinates;
+            if(isLocationOnPath(point, polyline, false, 30)){
+                console.log("line par hai")
+            }
+            else {
+                console.log("line par nahi hai");
             }
         }
         res.status(201).send({ message : 'location is updated' });
