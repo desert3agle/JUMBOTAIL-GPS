@@ -8,6 +8,8 @@ import ColumnGroupingTable from './AboutComponent';
 import Dash from "./DashboardComponent";
 import SignInSide from './LoginComponent';
 import SignUpSide from './RegisterComponent';
+import Fence from './FenceComponent';
+import GeoRoute from './RouteComponent';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -73,6 +75,8 @@ class Main extends Component {
                     <Route exact path="/dash" component={DashPage} />
                     <Route exact path="/track" component={AppPage} />
                     <Route exact path="/about" component={() => <ColumnGroupingTable assets={this.props.assets} user={this.props.user} />} />
+                    <Route exact path="/fence" component={Fence} />
+                    <Route exact path="/route" component={GeoRoute} />
                     <Redirect to={"/dash"} />
                 </Switch>
                 <ToastContainer />

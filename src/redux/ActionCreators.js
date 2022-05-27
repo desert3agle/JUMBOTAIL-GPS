@@ -25,7 +25,9 @@ export const getAssets = (token) => (dispatch) => {
 //Get the memes
 export const getOneAsset = (str) => (dispatch) => {
     console.log(baseUrl + "/list" + str);
-    fetch(baseUrl + "/list" + str)
+    fetch(baseUrl + "/list" + str, {
+        credentials: "include"
+    })
         .then(response => {
             if (response.ok) {
                 return response;
@@ -42,7 +44,9 @@ export const getOneAsset = (str) => (dispatch) => {
 };
 
 export const getPastRoute = (id) => (dispatch) => {
-    fetch(baseUrl + `/${id}` + "/track")
+    fetch(baseUrl + `/${id}` + "/track", {
+        credentials: "include"
+    })
         .then(response => {
             if (response.ok) {
                 return response;

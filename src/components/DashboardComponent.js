@@ -106,7 +106,6 @@ function Dash(props) {
         }
     });
     const [currShown, setCurrShown] = useState([viewport.longitude, viewport.latitude]);
-    console.log(props.user);
     if (props.user.userLoading) {
         return (<div />);
     }
@@ -120,6 +119,9 @@ function Dash(props) {
     return (
         <DeckGL ContextProvider={MapContext.Provider} initialViewState={{ ...viewport }} controller={true}
             style={{ width: "100vw", height: "100vh" }}
+            onViewStateChange={({ viewState }) => {
+                setViewport(viewState);
+            }}
         >
             <StaticMap
                 mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
