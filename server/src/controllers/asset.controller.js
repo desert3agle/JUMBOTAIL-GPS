@@ -1,8 +1,10 @@
-const Asset = require('../models/asset.model');
-const { isIsoDate, isValidLocation } = require('../utils/validation.utils');
 const mongoose = require('mongoose');
+const Asset = require('../models/asset.model');
+const Notification = require('../models/notification.model');
+const { isIsoDate, isValidLocation } = require('../utils/validation.utils');
 const { containsLocation } = require('../utils/geofence.utils');
 const { isLocationOnPath } = require('../utils/georoute.utils'); 
+const { emitNotification } = require('../index');
 
 exports.addAsset = async(req, res) => {
     try{
@@ -16,7 +18,10 @@ exports.addAsset = async(req, res) => {
             }
         });
         asset.route.push(req.body.location);
+
         let saved = await asset.save();
+
+        emitNotification("addedAsset", asset);
         
         res.status(201).json({ id: saved._id });
     }catch(err){
@@ -169,7 +174,7 @@ exports.updateAsset = async (req, res) => {
 
         if(!req.body.location){
             return res.status(400).send({
-                message: "please provide a location"
+                message: "Please provide a location"
             });
         }
 
@@ -188,23 +193,39 @@ exports.updateAsset = async (req, res) => {
         if(asset.geofence !== undefined){
             let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates;
 
-            if(containsLocation(latitude, longitude, polygon)){
-                console.log("andar hai");
-            }else{
-                console.log("bahar hai");
+            if(!containsLocation(latitude, longitude, polygon)){
+                const notification = new Notification({
+                    description : "Anomaly detected : Asset is outside geofence",
+                    assetId : asset._id,
+                    assetName : asset.name,
+                    location : asset.location.coordinates,
+                    time : asset.location.createdAt
+                });
+                await notification.save();
+                emitNotification("geofenceAnomaly", notification);
             }
+
         }
         //georoute
         if(asset.georoute !== undefined){
             let point = asset.location.coordinates, polyline = asset.georoute.coordinates;
-            if(isLocationOnPath(point, polyline, false, 30)){
-                console.log("line par hai")
-            }
-            else {
-                console.log("line par nahi hai");
+            
+            if(!isLocationOnPath(point, polyline, false, 30)){
+                const notification = new Notification({
+                    description : "Anomaly detected : Asset has deviated from preset georoute",
+                    assetId : asset._id,
+                    assetName : asset.name,
+                    location : asset.location.coordinates,
+                    time : asset.location.createdAt
+                });
+                await notification.save();
+                emitNotification("georouteAnomaly", notification);
             }
         }
-        res.status(201).send({ message : 'location is updated' });
+
+        emitNotification("upatedAsset", asset);
+
+        res.status(201).send({ message : 'Location is updated' });
     }catch(err){
         res.status(400).send({ message : err.message });
     }
@@ -225,7 +246,7 @@ exports.deleteAsset = async (req, res) => {
             })
         }
         await Asset.deleteOne({ _id: req.params.id });
-        res.status(200).send({ message : 'deleted' });
+        res.status(200).send({ message : 'Deleted' });
     }catch(err){
         res.status(500).send({ message : err.message });
     }

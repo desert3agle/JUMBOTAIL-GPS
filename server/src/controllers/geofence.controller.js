@@ -1,7 +1,9 @@
-const Asset = require('../models/asset.model');
 const mongoose = require('mongoose');
+const Asset = require('../models/asset.model');
+const Notification = require('../models/notification.model');
 const {isClosed, isValidGeofence } = require('../utils/validation.utils')
-
+const { containsLocation } = require('../utils/geofence.utils')
+const { emitNotification } = require('../index');
 
 exports.addGeofence = async (req, res) => {
     try{
@@ -20,27 +22,42 @@ exports.addGeofence = async (req, res) => {
 
         if(!req.body.geofence){
             return res.status(400).send({
-                message: "please provide a geofence or query"
+                message: "Please provide a geofence or query"
             });
         }
 
         if(!isValidGeofence(req.body.geofence.coordinates)){
             return res.status(400).send({
-                message: "invalid geofence coordinates, check range of coordinates or format of the payload"
+                message: "Invalid geofence coordinates, check range of coordinates or format of the payload"
             });      
         }
 
         if(!isClosed(req.body.geofence.coordinates)){
             return res.status(400).send({
-                message: "geofence isn't closed (first and last coordinates should be same)"
+                message: "Geofence isn't closed (first and last coordinates should be same)"
             });           
         }
 
 
         asset.geofence = req.body.geofence;
 
+        //geofence
+        let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates;
+
+        if(!containsLocation(latitude, longitude, polygon)){
+            const notification = new Notification({
+                description : "Anomaly detected : Asset is outside geofence",
+                assetId : asset._id,
+                assetName : asset.name,
+                location : asset.location.coordinates,
+                time : asset.location.createdAt
+            });
+            await notification.save();
+            emitNotification("geofenceAnomaly", notification);
+        }
+                
         await asset.save();
-        res.status(201).send({ message : 'geofence is modified' });
+        res.status(201).send({ message : 'Geofence is modified' });
     }catch(err){
         res.status(400).send({ message : err.message })
     }
@@ -65,7 +82,7 @@ exports.deleteGeofence = async (req, res) => {
          asset.geofence = undefined;
 
         await asset.save();
-        res.status(201).send({ message : 'geofence is deleted' });
+        res.status(201).send({ message : 'Geofence is deleted' });
     }catch(err){
         res.status(400).send({ message : err.message })
     }

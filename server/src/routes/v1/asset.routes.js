@@ -1,4 +1,5 @@
 const express = require('express');
+const { token } = require('morgan');
 const router = express.Router();
 const { getAssets, getOneAsset, addAsset, updateAsset, trackAsset, deleteAsset } = require('../../controllers/asset.controller');
 const { addGeofence, deleteGeofence } = require('../../controllers/geofence.controller');
@@ -51,16 +52,16 @@ router.patch('/:id', updateAsset);
  * @desc      deletes an asset
  * @access    Public
  */
-router.delete('/:id', deleteAsset);
+router.delete('/:id', tokenVerify, deleteAsset);
 
 // geofence
-router.patch('/:id/geofence', addGeofence);
+router.patch('/:id/geofence', tokenVerify, addGeofence);
 
-router.patch('/:id/geofence/remove', deleteGeofence);
+router.patch('/:id/geofence/remove', tokenVerify,  deleteGeofence);
 
 // georoute
-router.patch('/:id/georoute', addGeoroute);
+router.patch('/:id/georoute', tokenVerify, addGeoroute);
 
-router.patch('/:id/georoute/remove', deleteGeoroute);
+router.patch('/:id/georoute/remove', tokenVerify, deleteGeoroute);
 
 module.exports = router;
