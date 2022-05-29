@@ -54,7 +54,6 @@ export default function SignInSide(props) {
         }
         props.loginUser(params);
     };
-
     return (
         <ThemeProvider theme={theme}>
             <Grid container component="main" sx={{ height: '100vh' }}>

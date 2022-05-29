@@ -15,6 +15,7 @@ import Fence from './FenceComponent';
 import GeoRoute from './RouteComponent';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { io } from "socket.io-client";
 
 //mapping the state from combine reducers
 const mapStateToProps = state => {
@@ -51,6 +52,9 @@ class Main extends Component {
     }
     componentDidMount() {
         this.props.userExist();
+        this.state = {
+            didAssetUpdate: false
+        }
     }
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.user !== this.props.user) {
@@ -76,11 +80,33 @@ class Main extends Component {
             }
         }
     }
+    componentWillMount() {
+        console.log("willmount");
+        const socket = io("http://localhost:8080", {
+            // transports: ['websocket'],
+            withCredentials: true
+        });
+        socket.on("upatedAsset", (data) => {
+            toast.success(`${data.name} of type ${data.assetType} is updated`);
+            this.props.getAssets();
+            this.props.getPastRoute(data._id);
+        });
+        socket.on("addedAsset", (data) => {
+            toast.success(`${data.name} of type ${data.assetType} is added`);
+            this.props.getAssets();
+        });
+        socket.on("geofenceAnomaly", (data) => {
+            toast.error(`${data.description} for ${data.assetName}`);
+        });
+        socket.on("georouteAnomaly", (data) => {
+            toast.error(`${data.description} for ${data.assetName}`);
+        });
+    }
     render() {
-        console.log(this.props.assets)
-        console.log(this.props.pastRoute)
-        console.log(this.props.user);
-        console.log(this.props.findOneAsset);
+        // console.log(this.props.assets)
+        // console.log(this.props.pastRoute)
+        // console.log(this.props.user);
+        // console.log(this.props.findOneAsset);
         const DashPage = () => {
             return (<Dash assets={this.props.assets} getAssets={this.props.getAssets}
                 oneAsset={this.props.oneAsset} getOneAsset={this.props.getOneAsset}
@@ -89,9 +115,6 @@ class Main extends Component {
         const AppPage = () => {
             return (<App getPastRoute={this.props.getPastRoute} assets={this.props.assets} pastRoute={this.props.pastRoute} user={this.props.user} />)
         };
-        if (this.props.assets.assets.length === 0) {
-            return (<div />);
-        }
         return (
             <div>
                 <HeaderComponent user={this.props.user} logoutUser={this.props.logoutUser} />

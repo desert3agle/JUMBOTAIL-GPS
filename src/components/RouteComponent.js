@@ -29,7 +29,7 @@ class GeoRoute extends Component {
         this.state = {
             data: {
                 type: "FeatureCollection",
-                features: (assets["georoute"] ? [{
+                features: (assets !== null && assets["georoute"] ? [{
                     type: "Feature",
                     properties: {},
                     geometry: {
@@ -38,10 +38,10 @@ class GeoRoute extends Component {
                     }
                 }] : [])
             },
-            myMode: (assets["georoute"] ? EditingMode : DrawLineStringMode),
+            myMode: (assets !== null && assets["georoute"] ? EditingMode : DrawLineStringMode),
             viewport: {
-                longitude: assets.location.coordinates[0],
-                latitude: assets.location.coordinates[1],
+                longitude: (assets !== null ? assets.location.coordinates[0] : 80),
+                latitude: (assets !== null ? assets.location.coordinates[1] : 20),
                 zoom: 16,
                 pitch: 0,
                 bearing: 0

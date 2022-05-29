@@ -88,7 +88,7 @@ function App(props) {
         }
     }, [pastRoute]);
 
-    if (props.user.userLoading) {
+    if (props.user.userLoading || props.pastRoute.errMess !== null) {
         return (<div />);
     }
     if (props.user.userFailed === true || props.user.user === null) {

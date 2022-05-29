@@ -27,18 +27,17 @@ const selectedFeatureIndexes = [];
 class Fence extends Component {
     constructor(props) {
         super(props)
-        let assets;
+        let assets = null;
         for (let i = 0; i < props.assets.assets.length; i++) {
             if (props.assets.assets[i]._id === this.props.match.params.id) {
                 assets = props.assets.assets[i]
                 break;
             }
         }
-        console.log(assets);
         this.state = {
             data: {
                 type: "FeatureCollection",
-                features: (assets["geofence"] ? [{
+                features: (assets !== null && assets["geofence"] ? [{
                     type: "Feature",
                     properties: {},
                     geometry: {
@@ -47,10 +46,10 @@ class Fence extends Component {
                     }
                 }] : [])
             },
-            myMode: (assets["geofence"] ? EditingMode : DrawPolygonMode),
+            myMode: (assets !== null && assets["geofence"] ? EditingMode : DrawPolygonMode),
             viewport: {
-                longitude: assets.location.coordinates[0],
-                latitude: assets.location.coordinates[1],
+                longitude: (assets !== null ? assets.location.coordinates[0] : 80),
+                latitude: (assets !== null ? assets.location.coordinates[1] : 20),
                 zoom: 16,
                 pitch: 0,
                 bearing: 0
@@ -93,7 +92,6 @@ class Fence extends Component {
                             coordinates: updatedData.features[0].geometry.coordinates[0]
                         }
                     }
-                    console.log(updatedData)
                     this.props.updateFence(data, this.props.match.params.id);
                 }
             }
