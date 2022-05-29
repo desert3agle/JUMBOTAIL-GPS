@@ -46,7 +46,6 @@ app.use(cors({origin : process.env.ORIGIN, credentials : true}));
 // Routes
 app.use('/api/v1/user', require('./routes/v1/user.routes'));
 app.use('/api/v1/asset', require('./routes/v1/asset.routes'));
-app.use('/api/v1/notification', require('./routes/v1/notification.routes'));
 app.use("*", (req, res) => {
   res.status(404).json({ success: "false", message: "Page not found" });
 });

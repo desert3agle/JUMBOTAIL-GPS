@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Asset = require('../models/asset.model');
-const Notification = require('../models/notification.model');
 const { isValidGeoroute, isClosed } = require('../utils/validation.utils');
 const { isLocationOnPath } = require('../utils/georoute.utils');
 const { emitNotification } = require('../index');
@@ -45,14 +44,13 @@ exports.addGeoroute = async (req, res) => {
         let point = asset.location.coordinates, polyline = asset.georoute.coordinates;
         
         if(!isLocationOnPath(point, polyline, false, 30)){
-            const notification = new Notification({
+            const notification = {
                 description : "Anomaly detected : Asset has deviated from preset georoute",
                 assetId : asset._id,
                 assetName : asset.name,
                 location : asset.location.coordinates,
                 time : asset.location.createdAt
-            });
-            await notification.save();
+            };
             emitNotification("georouteAnomaly", notification);
         }
 

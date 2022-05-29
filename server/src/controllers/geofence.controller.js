@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Asset = require('../models/asset.model');
-const Notification = require('../models/notification.model');
 const {isClosed, isValidGeofence } = require('../utils/validation.utils')
 const { containsLocation } = require('../utils/geofence.utils')
 const { emitNotification } = require('../index');
@@ -45,14 +44,13 @@ exports.addGeofence = async (req, res) => {
         let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates;
 
         if(!containsLocation(latitude, longitude, polygon)){
-            const notification = new Notification({
+            const notification = {
                 description : "Anomaly detected : Asset is outside geofence",
                 assetId : asset._id,
                 assetName : asset.name,
                 location : asset.location.coordinates,
                 time : asset.location.createdAt
-            });
-            await notification.save();
+            };
             emitNotification("geofenceAnomaly", notification);
         }
                 

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Asset = require('../models/asset.model');
-const Notification = require('../models/notification.model');
 const { isIsoDate, isValidLocation } = require('../utils/validation.utils');
 const { containsLocation } = require('../utils/geofence.utils');
 const { isLocationOnPath } = require('../utils/georoute.utils'); 
@@ -194,14 +193,13 @@ exports.updateAsset = async (req, res) => {
             let longitude = asset.location.coordinates[0], latitude = asset.location.coordinates[1], polygon = asset.geofence.coordinates;
 
             if(!containsLocation(latitude, longitude, polygon)){
-                const notification = new Notification({
+                const notification = {
                     description : "Anomaly detected : Asset is outside geofence",
                     assetId : asset._id,
                     assetName : asset.name,
                     location : asset.location.coordinates,
                     time : asset.location.createdAt
-                });
-                await notification.save();
+                };
                 emitNotification("geofenceAnomaly", notification);
             }
 
@@ -211,14 +209,13 @@ exports.updateAsset = async (req, res) => {
             let point = asset.location.coordinates, polyline = asset.georoute.coordinates;
             
             if(!isLocationOnPath(point, polyline, false, 30)){
-                const notification = new Notification({
+                const notification = {
                     description : "Anomaly detected : Asset has deviated from preset georoute",
                     assetId : asset._id,
                     assetName : asset.name,
                     location : asset.location.coordinates,
                     time : asset.location.createdAt
-                });
-                await notification.save();
+                };
                 emitNotification("georouteAnomaly", notification);
             }
         }
