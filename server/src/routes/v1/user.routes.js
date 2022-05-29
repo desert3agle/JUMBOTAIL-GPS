@@ -5,7 +5,7 @@ const { addUser, loginUser, logoutUser, checkUser } = require('../../controllers
 
 /**
  * @route     POST /api/v1/user/signup
- * @desc      registers users
+ * @desc      registers user
  * @access    Public
  */
 router.post("/signup", addUser);
