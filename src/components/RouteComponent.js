@@ -5,6 +5,7 @@ import DeckGL, { MapView } from 'deck.gl';
 import { EditableGeoJsonLayer, DrawLineStringMode, EditMode } from 'nebula.gl';
 import { EditingMode, DrawPolygonMode } from "react-map-gl-draw";
 import { StaticMap, _MapContext as MapContext } from 'react-map-gl';
+import { withRouter } from 'react-router-dom';
 
 const myFeatureCollection = {
     type: 'FeatureCollection',
@@ -47,7 +48,17 @@ class GeoRoute extends Component {
                 console.log(this.state.data)
             }
         });
-
+        if (this.props.user.userLoading) {
+            return (<div />);
+        }
+        if (this.props.user.userFailed === true || this.props.user.user === null) {
+            this.props.history.push("/login")
+            return (<div />);
+        }
+        if (this.props.routeFenceData.routeData === null && this.props.routeFenceData.fenceData === null) {
+            this.props.history.push("/dash");
+            return (<div />);
+        }
         return (
             <DeckGL initialViewState={this.state.viewport} ContextProvider={MapContext.Provider} layers={[layer]}
                 style={{ width: "100vw", height: "100vh" }}
@@ -82,4 +93,4 @@ class GeoRoute extends Component {
     }
 }
 
-export default GeoRoute;
+export default withRouter(GeoRoute);

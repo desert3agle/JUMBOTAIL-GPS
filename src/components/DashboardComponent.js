@@ -164,19 +164,47 @@ function Dash(props) {
                                             </Typography>
                                         </CardContent>
                                         <CardActions>
-                                            <Button variant="contained" onClick={(event) => {
-                                                props.getPastRoute(ele._id);
-                                                setDownDiv(0);
-                                                setOptions(null);
-                                                setPopulate(assets);
-                                                setSingleID(null);
-                                                setInputSingleID('');
-                                                setTypeID(null);
-                                                setInputTypeID('');
-                                                setDateOne(new Date('2022-05-01'));
-                                                setDateTwo(null);
-                                                hist.push("/track");
-                                            }}>Track</Button>
+                                            <Stack spacing={2} direction="row">
+                                                <Button variant="contained" onClick={(event) => {
+                                                    props.getPastRoute(ele._id);
+                                                    setDownDiv(0);
+                                                    setOptions(null);
+                                                    setPopulate(assets);
+                                                    setSingleID(null);
+                                                    setInputSingleID('');
+                                                    setTypeID(null);
+                                                    setInputTypeID('');
+                                                    setDateOne(new Date('2022-05-01'));
+                                                    setDateTwo(null);
+                                                    hist.push(`/track/${ele._id}`);
+                                                }}>Track</Button>
+                                                <Button variant="contained" onClick={(event) => {
+                                                    props.sendFence(ele);
+                                                    setDownDiv(0);
+                                                    setOptions(null);
+                                                    setPopulate(assets);
+                                                    setSingleID(null);
+                                                    setInputSingleID('');
+                                                    setTypeID(null);
+                                                    setInputTypeID('');
+                                                    setDateOne(new Date('2022-05-01'));
+                                                    setDateTwo(null);
+                                                    hist.push(`/fence/${ele._id}`);
+                                                }}>Geofence</Button>
+                                                <Button variant="contained" onClick={(event) => {
+                                                    props.sendRoute(ele);
+                                                    setDownDiv(0);
+                                                    setOptions(null);
+                                                    setPopulate(assets);
+                                                    setSingleID(null);
+                                                    setInputSingleID('');
+                                                    setTypeID(null);
+                                                    setInputTypeID('');
+                                                    setDateOne(new Date('2022-05-01'));
+                                                    setDateTwo(null);
+                                                    hist.push(`/route/${ele._id}`);
+                                                }}>Georoute</Button>
+                                            </Stack>
                                         </CardActions>
                                     </Card>
 

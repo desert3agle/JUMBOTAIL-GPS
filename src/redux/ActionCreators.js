@@ -1,9 +1,7 @@
 import * as  ActionTypes from './ActionTypes';
 import { baseUrl, userUrl } from "./baseUrl";
-import axios from 'axios';
 //Get the memes
-axios.defaults.withCredentials = true;
-export const getAssets = (token) => (dispatch) => {
+export const getAssets = () => (dispatch) => {
     fetch(baseUrl + "/list", {
         credentials: "include"
     })
@@ -24,7 +22,6 @@ export const getAssets = (token) => (dispatch) => {
 
 //Get the memes
 export const getOneAsset = (str) => (dispatch) => {
-    console.log(baseUrl + "/list" + str);
     fetch(baseUrl + "/list" + str, {
         credentials: "include"
     })
@@ -42,6 +39,25 @@ export const getOneAsset = (str) => (dispatch) => {
         .then(assets => dispatch(addOneAssets(assets)))
         .catch(err => dispatch(oneAssetsFailed(err.message)));
 };
+
+export const findOneAsset = (id) => (dispatch) => {
+    fetch(baseUrl + `/${id}`, {
+        credentials: "include"
+    })
+        .then(response => {
+            if (response.ok) {
+                return response;
+            }
+            else {
+                var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                error.response = response;
+                throw error;
+            }
+        })
+        .then(response => response.json())
+        .then(assets => dispatch(addOneAsset(assets)))
+        .catch(err => dispatch(oneAssetFailed(err.message)));
+}
 
 export const getPastRoute = (id) => (dispatch) => {
     fetch(baseUrl + `/${id}` + "/track", {
@@ -177,6 +193,94 @@ export const logoutUser = () => (dispatch) => {
         .catch(err => dispatch(userFailed(err.message)));
 }
 
+export const updateFence = (fence, id) => (dispatch) => {
+    fetch(baseUrl + `/${id}` + "/geofence", {
+        method: 'PATCH',
+        body: JSON.stringify(fence),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include"
+    })
+        .then(response => {
+            if (response.ok) {
+                return response;
+            }
+            else {
+                return Promise.reject(response);
+            }
+        })
+        .then(response => response.json())
+        .then(response => {
+            return dispatch(successMessage(response.message));
+        })
+        .catch(response => {
+            response.json().then(msg => {
+                return dispatch(messageFailed(msg.message));
+            })
+        })
+}
+
+export const deleteFence = (id) => (dispatch) => {
+    fetch(baseUrl + `/${id}` + "/geofence/remove", {
+        method: 'PATCH',
+        credentials: "include"
+    })
+        .then(response => response.json())
+        .then(response => {
+            return dispatch(successMessage(response.message));
+        });
+}
+
+export const updateRoute = (fence, id) => (dispatch) => {
+    fetch(baseUrl + `/${id}` + "/georoute", {
+        method: 'PUT',
+        body: JSON.stringify(fence),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include"
+    })
+        .then(response => {
+            if (response.ok) {
+                return response;
+            }
+            else {
+                return Promise.reject(response);
+            }
+        })
+        .then(response => response.json())
+        .then(response => {
+            return dispatch(successMessage(response.message));
+        })
+        .catch(response => {
+            response.json().then(msg => {
+                return dispatch(messageFailed(msg.message));
+            })
+        })
+}
+
+export const deleteRoute = (id) => (dispatch) => {
+    fetch(baseUrl + `/${id}` + "/georoute/remove", {
+        method: 'DELETE',
+        credentials: "include"
+    })
+        .then(response => response.json())
+        .then(response => {
+            return dispatch(successMessage(response.message));
+        });
+}
+
+export const sendFence = (data) => (dispatch) => {
+    dispatch(dataLoading());
+    return dispatch(fenceData(data));
+}
+
+export const sendRoute = (data) => (dispatch) => {
+    dispatch(dataLoading());
+    return dispatch(routeData(data));
+}
+
 export const assetsFailed = (errMess) => ({
     type: ActionTypes.ASSETS_FAILED,
     payload: errMess
@@ -214,4 +318,31 @@ export const removeUser = () => ({
 });
 export const userLoading = () => ({
     type: ActionTypes.USER_LD
+});
+export const successMessage = (message) => ({
+    type: ActionTypes.MSG_AC,
+    payload: message
+});
+export const messageFailed = (message) => ({
+    type: ActionTypes.MSG_WA,
+    payload: message
+});
+export const fenceData = (data) => ({
+    type: ActionTypes.FENCE_DATA,
+    payload: data
+});
+export const routeData = (data) => ({
+    type: ActionTypes.ROUTE_DATA,
+    payload: data
+});
+export const dataLoading = () => ({
+    type: ActionTypes.DATA_LD
+});
+export const addOneAsset = (asset) => ({
+    type: ActionTypes.ADD_ONE_ASSET,
+    payload: asset
+});
+export const oneAssetFailed = (errMess) => ({
+    type: ActionTypes.ONE_ASSET_FAILED,
+    payload: errMess
 });

@@ -5,7 +5,7 @@ import DeckGL, { FlyToInterpolator, MapView } from 'deck.gl';
 import { EditableGeoJsonLayer, DrawLineStringMode, EditMode } from 'nebula.gl';
 import { EditingMode, DrawPolygonMode } from "react-map-gl-draw";
 import { StaticMap, _MapContext as MapContext } from 'react-map-gl';
-import { set } from 'date-fns';
+import { withRouter } from 'react-router-dom';
 
 const myFeatureCollection = {
     type: 'FeatureCollection',
@@ -27,13 +27,31 @@ const selectedFeatureIndexes = [];
 class Fence extends Component {
     constructor(props) {
         super(props)
+        let assets;
+        for (let i = 0; i < props.assets.assets.length; i++) {
+            if (props.assets.assets[i]._id === this.props.match.params.id) {
+                assets = props.assets.assets[i]
+                break;
+            }
+        }
+        console.log(assets);
         this.state = {
-            data: myFeatureCollection,
-            myMode: DrawPolygonMode,
+            data: {
+                type: "FeatureCollection",
+                features: (assets["geofence"] ? [{
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [assets.geofence.coordinates]
+                    }
+                }] : [])
+            },
+            myMode: (assets["geofence"] ? EditingMode : DrawPolygonMode),
             viewport: {
-                longitude: 80.94870109683097,
-                latitude: 26.85188859998891,
-                zoom: 14,
+                longitude: assets.location.coordinates[0],
+                latitude: assets.location.coordinates[1],
+                zoom: 16,
                 pitch: 0,
                 bearing: 0
             }
@@ -41,12 +59,20 @@ class Fence extends Component {
         this.deleteAppear = this.deleteAppear.bind(this);
     }
     deleteAppear(e) {
+        this.props.deleteFence(this.props.match.params.id);
         this.setState({
             data: myFeatureCollection,
             myMode: DrawPolygonMode
         })
     }
     render() {
+        if (this.props.user.userLoading) {
+            return (<div />);
+        }
+        if (this.props.user.userFailed === true || this.props.user.user === null) {
+            this.props.history.push("/login")
+            return (<div />);
+        }
         const layer = new EditableGeoJsonLayer({
             id: 'geojson-layer',
             data: this.state.data,
@@ -61,6 +87,14 @@ class Fence extends Component {
                     this.setState({
                         myMode: EditingMode
                     });
+                    const data = {
+                        geofence: {
+                            type: "Polygon",
+                            coordinates: updatedData.features[0].geometry.coordinates[0]
+                        }
+                    }
+                    console.log(updatedData)
+                    this.props.updateFence(data, this.props.match.params.id);
                 }
             }
         });
@@ -94,4 +128,4 @@ class Fence extends Component {
     }
 }
 
-export default Fence;
+export default withRouter(Fence);

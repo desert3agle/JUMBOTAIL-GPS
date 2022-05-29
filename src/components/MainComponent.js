@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import HeaderComponent from "./HeaderComponent";
 import App from "./MapComponent";
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
-import { getAssets, getOneAsset, getPastRoute, loginUser, logoutUser, registerUser, userExist } from "../redux/ActionCreators";
+import {
+    getAssets, getOneAsset, getPastRoute, loginUser, logoutUser, registerUser, userExist,
+    updateFence, updateRoute, deleteFence, deleteRoute, sendFence, sendRoute, findOneAsset
+} from "../redux/ActionCreators";
 import { connect } from "react-redux";
 import ColumnGroupingTable from './AboutComponent';
 import Dash from "./DashboardComponent";
@@ -19,7 +22,10 @@ const mapStateToProps = state => {
         assets: state.assets,
         oneAsset: state.oneAsset,
         pastRoute: state.pastRoute,
-        user: state.user
+        user: state.user,
+        geometryMessage: state.geometryMessage,
+        routeFenceData: state.routeFenceData,
+        findOneAsset: state.findOneAsset
     }
 }
 //dispatch comments from ActionCreators
@@ -30,7 +36,14 @@ const mapDispatchToProps = (dispatch) => ({
     loginUser: (params) => dispatch(loginUser(params)),
     registerUser: (params) => dispatch(registerUser(params)),
     logoutUser: () => dispatch(logoutUser()),
-    userExist: () => dispatch(userExist())
+    userExist: () => dispatch(userExist()),
+    updateFence: (fence, id) => dispatch(updateFence(fence, id)),
+    updateRoute: (route, id) => dispatch(updateRoute(route, id)),
+    deleteFence: (id) => dispatch(deleteFence(id)),
+    deleteRoute: (id) => dispatch(deleteRoute(id)),
+    sendFence: (data) => dispatch(sendFence(data)),
+    sendRoute: (data) => dispatch(sendRoute(data)),
+    findOneAssetFnc: (id) => dispatch(findOneAsset(id))
 });
 class Main extends Component {
     constructor(props) {
@@ -42,7 +55,7 @@ class Main extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.user !== this.props.user) {
             if (this.props.user.user !== null) {
-                this.props.getAssets(this.props.user.token);
+                this.props.getAssets();
             }
         }
         if (prevProps.user.errMess === "loading" && (prevProps.user.errMess !== this.props.user.errMess)) {
@@ -53,15 +66,25 @@ class Main extends Component {
                 toast.success(this.props.user.errMess);
             }
         }
+        if (prevProps.geometryMessage !== this.props.geometryMessage) {
+            this.props.getAssets();
+            if (this.props.geometryMessage.error === false) {
+                toast.success(this.props.geometryMessage.message);
+            }
+            else {
+                toast.error(this.props.geometryMessage.message);
+            }
+        }
     }
     render() {
         console.log(this.props.assets)
         console.log(this.props.pastRoute)
         console.log(this.props.user);
+        console.log(this.props.findOneAsset);
         const DashPage = () => {
             return (<Dash assets={this.props.assets} getAssets={this.props.getAssets}
                 oneAsset={this.props.oneAsset} getOneAsset={this.props.getOneAsset}
-                getPastRoute={this.props.getPastRoute} user={this.props.user} />)
+                getPastRoute={this.props.getPastRoute} user={this.props.user} sendFence={this.props.sendFence} sendRoute={this.props.sendRoute} />)
         };
         const AppPage = () => {
             return (<App assets={this.props.assets} pastRoute={this.props.pastRoute} user={this.props.user} />)
@@ -73,10 +96,11 @@ class Main extends Component {
                     <Route path="/login" component={() => <SignInSide user={this.props.user} loginUser={this.props.loginUser} getAssets={this.props.getAssets} />} />
                     <Route path="/register" component={() => <SignUpSide registerUser={this.props.registerUser} user={this.props.user} />} />
                     <Route exact path="/dash" component={DashPage} />
-                    <Route exact path="/track" component={AppPage} />
-                    <Route exact path="/about" component={() => <ColumnGroupingTable assets={this.props.assets} user={this.props.user} />} />
-                    <Route exact path="/fence" component={Fence} />
-                    <Route exact path="/route" component={GeoRoute} />
+                    <Route path="/track/:id" component={AppPage} />
+                    <Route path="/about" component={() => <ColumnGroupingTable assets={this.props.assets} user={this.props.user} />} />
+                    <Route path="/fence/:id" component={() => <Fence updateFence={this.props.updateFence} deleteFence={this.props.deleteFence}
+                        user={this.props.user} assets={this.props.assets} />} />
+                    <Route path="/route/:id" component={() => <GeoRoute updateRoute={this.props.updateRoute} deleteRoute={this.props.deleteRoute} routeFenceData={this.props.routeFenceData} user={this.props.user} />} />
                     <Redirect to={"/dash"} />
                 </Switch>
                 <ToastContainer />
