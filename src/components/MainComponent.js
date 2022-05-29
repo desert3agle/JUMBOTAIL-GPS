@@ -30,7 +30,7 @@ const mapStateToProps = state => {
 }
 //dispatch comments from ActionCreators
 const mapDispatchToProps = (dispatch) => ({
-    getAssets: (token) => dispatch(getAssets(token)),
+    getAssets: () => dispatch(getAssets()),
     getOneAsset: (str) => dispatch(getOneAsset(str)),
     getPastRoute: (id) => dispatch(getPastRoute(id)),
     loginUser: (params) => dispatch(loginUser(params)),
@@ -87,8 +87,11 @@ class Main extends Component {
                 getPastRoute={this.props.getPastRoute} user={this.props.user} sendFence={this.props.sendFence} sendRoute={this.props.sendRoute} />)
         };
         const AppPage = () => {
-            return (<App assets={this.props.assets} pastRoute={this.props.pastRoute} user={this.props.user} />)
+            return (<App getPastRoute={this.props.getPastRoute} assets={this.props.assets} pastRoute={this.props.pastRoute} user={this.props.user} />)
         };
+        if (this.props.assets.assets.length === 0) {
+            return (<div />);
+        }
         return (
             <div>
                 <HeaderComponent user={this.props.user} logoutUser={this.props.logoutUser} />
@@ -100,7 +103,7 @@ class Main extends Component {
                     <Route path="/about" component={() => <ColumnGroupingTable assets={this.props.assets} user={this.props.user} />} />
                     <Route path="/fence/:id" component={() => <Fence updateFence={this.props.updateFence} deleteFence={this.props.deleteFence}
                         user={this.props.user} assets={this.props.assets} />} />
-                    <Route path="/route/:id" component={() => <GeoRoute updateRoute={this.props.updateRoute} deleteRoute={this.props.deleteRoute} routeFenceData={this.props.routeFenceData} user={this.props.user} />} />
+                    <Route path="/route/:id" component={() => <GeoRoute updateRoute={this.props.updateRoute} deleteRoute={this.props.deleteRoute} assets={this.props.assets} user={this.props.user} />} />
                     <Redirect to={"/dash"} />
                 </Switch>
                 <ToastContainer />

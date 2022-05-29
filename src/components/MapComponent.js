@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ReactMapGL, { StaticMap, Marker, Popup } from 'react-map-gl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Room } from '@material-ui/icons';
 import DeckGL from 'deck.gl';
 import { _MapContext as MapContext } from 'react-map-gl';
@@ -13,18 +13,20 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
+import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 
 const createData = (name, routes) => {
     const color = [101, 147, 245];
     const data = [{
         name: name,
         color: color,
-        path: routes.map(ele => ele.coordinates)
+        path: (routes === null ? [] : routes.map(ele => ele.coordinates))
     }]
     return data;
 }
 const getName = (assets, pastRoute) => {
-    if (pastRoute.length === 0) {
+    if (pastRoute === null || pastRoute.length === 0) {
         return null;
     }
     else {
@@ -38,8 +40,9 @@ const getName = (assets, pastRoute) => {
 }
 function App(props) {
     const history = useHistory();
-    const pastRoute = props.pastRoute.pastRoute;
-    const assets = props.assets.assets;
+    const params = useParams();
+    const [pastRoute, setPastRoute] = useState(props.pastRoute.pastRoute);
+    const [assets, setAssets] = useState(props.assets.assets);
     const data = createData("path-layer", pastRoute);
     const name = getName(assets, pastRoute);
     const layer = [
@@ -57,7 +60,7 @@ function App(props) {
             longitude: null,
             zoom: null
         }
-        if (pastRoute.length === 0) {
+        if (pastRoute === null || pastRoute.length === 0) {
             const coordinates = getPoints(assets);
             if (assets.length !== 0) {
                 bounds = getBoundsForPoints(coordinates);
@@ -74,6 +77,16 @@ function App(props) {
         }
     });
     const [currShown, setCurrShown] = useState(null);
+    useEffect(() => {
+        if (props.pastRoute.errMess === null && props.pastRoute.pastRoute === null) {
+            props.getPastRoute(params.id);
+        }
+    }, [assets])
+    useEffect(() => {
+        if (pastRoute !== null && pastRoute.length === 0 && props.pastRoute.errMess === null) {
+            toast.warn("There are no routes in the past 24 hours!")
+        }
+    }, [pastRoute]);
 
     if (props.user.userLoading) {
         return (<div />);

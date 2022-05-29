@@ -6,6 +6,7 @@ export const ADD_ONE_ASSETS = 'ADD_ONE_ASSETS';
 
 export const ADD_PAST_ROUTE = 'ADD_PAST_ROUTE';
 export const PAST_ROUTE_FAILED = 'PAST_ROUTE_FAILED';
+export const PAST_ROUTE_LD = "PAST_ROUTES_LD";
 
 export const USER_AC = "USER_AC";
 export const USER_WA = "USER_WA";

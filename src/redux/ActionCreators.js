@@ -60,6 +60,7 @@ export const findOneAsset = (id) => (dispatch) => {
 }
 
 export const getPastRoute = (id) => (dispatch) => {
+    dispatch(loadingPastRoute());
     fetch(baseUrl + `/${id}` + "/track", {
         credentials: "include"
     })
@@ -234,7 +235,7 @@ export const deleteFence = (id) => (dispatch) => {
 
 export const updateRoute = (fence, id) => (dispatch) => {
     fetch(baseUrl + `/${id}` + "/georoute", {
-        method: 'PUT',
+        method: 'PATCH',
         body: JSON.stringify(fence),
         headers: {
             "Content-Type": "application/json"
@@ -262,7 +263,7 @@ export const updateRoute = (fence, id) => (dispatch) => {
 
 export const deleteRoute = (id) => (dispatch) => {
     fetch(baseUrl + `/${id}` + "/georoute/remove", {
-        method: 'DELETE',
+        method: 'PATCH',
         credentials: "include"
     })
         .then(response => response.json())
@@ -305,6 +306,9 @@ export const pastRouteFailed = (errMess) => ({
     type: ActionTypes.PAST_ROUTE_FAILED,
     payload: errMess
 });
+export const loadingPastRoute = () => ({
+    type: ActionTypes.PAST_ROUTE_LD,
+})
 export const addUser = (payload) => ({
     type: ActionTypes.USER_AC,
     payload: payload
