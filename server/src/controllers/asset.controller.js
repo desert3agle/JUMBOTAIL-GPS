@@ -150,6 +150,7 @@ exports.trackAsset = async(req, res) => {
             }
             console.log(startTime, endTime);
         }
+        
         const response = [];
 
         for(let i = 0; i < asset.route.length; i++) {
