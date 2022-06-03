@@ -19,8 +19,8 @@ function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
+            <Link color="inherit" href="https://jumbotail-gps.herokuapp.com/">
+                JumboTail GPS
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -34,7 +34,6 @@ export default function SignInSide(props) {
     const { values, handleChange } = useForm("loginValues", {
         initialValues: {
             email: "",
-            password: ""
         }
     });
     const history = useHistory();
@@ -54,6 +53,9 @@ export default function SignInSide(props) {
         }
         props.loginUser(params);
     };
+    const random = () => {
+        return (Math.floor(Math.random() * 10) % 6) + 1;
+    }
     return (
         <ThemeProvider theme={theme}>
             <Grid container component="main" sx={{ height: '100vh' }}>
@@ -64,7 +66,7 @@ export default function SignInSide(props) {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: 'url(https://source.unsplash.com/random)',
+                        backgroundImage: `url(/map${random()}.jpg)`,
                         backgroundRepeat: 'no-repeat',
                         backgroundColor: (t) =>
                             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -109,8 +111,6 @@ export default function SignInSide(props) {
                                 label="Password"
                                 type="password"
                                 id="password"
-                                value={values.password}
-                                onChange={handleChange}
                                 autoComplete="current-password"
                             />
                             <Button

@@ -11,11 +11,8 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import { useHistory } from 'react-router-dom';
 
-const pages = ['Dashboard', 'Tracking'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const ResponsiveAppBar = (props) => {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -37,11 +34,10 @@ const ResponsiveAppBar = (props) => {
     };
     const history = useHistory();
     return (
-        <>
+        <React.Fragment>
             <AppBar position="fixed">
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
-                        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
                         <Typography
                             variant="h6"
                             noWrap
@@ -63,16 +59,20 @@ const ResponsiveAppBar = (props) => {
                         </Typography>
 
                         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                            <IconButton
-                                size="large"
-                                aria-label="account of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                onClick={handleOpenNavMenu}
-                                color="inherit"
-                            >
-                                <MenuIcon />
-                            </IconButton>
+                            {
+                                (props.user.userLoading === false && props.user.user !== null) && (
+                                    <IconButton
+                                        size="large"
+                                        aria-label="account of current user"
+                                        aria-controls="menu-appbar"
+                                        aria-haspopup="true"
+                                        onClick={handleOpenNavMenu}
+                                        color="inherit"
+                                    >
+                                        <MenuIcon />
+                                    </IconButton>
+                                )
+                            }
                             <Menu
                                 id="menu-appbar"
                                 anchorEl={anchorElNav}
@@ -91,14 +91,27 @@ const ResponsiveAppBar = (props) => {
                                     display: { xs: 'block', md: 'none' },
                                 }}
                             >
-                                {pages.map((page) => (
-                                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page}</Typography>
-                                    </MenuItem>
-                                ))}
+                                <MenuItem onClick={() => {
+                                    history.push("/dash");
+                                    handleCloseNavMenu();
+                                }}>
+                                    <Typography textAlign="center">Dashboard</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={() => {
+                                    history.push("/about");
+                                    handleCloseNavMenu();
+                                }}>
+                                    <Typography textAlign="center">Assets</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={() => {
+                                    props.logoutUser();
+                                    handleCloseNavMenu();
+                                }}>
+                                    <Typography textAlign="center">Logout</Typography>
+                                </MenuItem>
                             </Menu>
                         </Box>
-                        <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+
                         <Typography
                             variant="h5"
                             noWrap
@@ -115,7 +128,9 @@ const ResponsiveAppBar = (props) => {
                                 textDecoration: 'none',
                             }}
                         >
-                            LOGO
+                            {
+                                (props.user.userLoading === false && props.user.user !== null) ? "JumboTail" : "JumboTail GPS"
+                            }
                         </Typography>
                         {
                             (props.user.userLoading === false && props.user.user !== null) && (
@@ -134,7 +149,7 @@ const ResponsiveAppBar = (props) => {
                                         }}
                                         sx={{ my: 2, color: 'white', display: 'block' }}
                                     >
-                                        About
+                                        Assets
                                     </Button>
                                 </Box>
                             )
@@ -145,7 +160,7 @@ const ResponsiveAppBar = (props) => {
                                 <Box sx={{ flexGrow: 0 }}>
                                     <Tooltip title="Open settings">
                                         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                            <Avatar src="/broken-image.jpg" />
                                         </IconButton>
                                     </Tooltip>
                                     <Menu
@@ -178,7 +193,7 @@ const ResponsiveAppBar = (props) => {
                 </Container>
             </AppBar>
             <Toolbar />
-        </>
+        </React.Fragment>
     );
 };
 export default ResponsiveAppBar;

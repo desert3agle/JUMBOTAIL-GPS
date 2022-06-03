@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ReactMapGL, { StaticMap, Marker, Popup } from 'react-map-gl';
+import ReactMapGL, { StaticMap, Marker, Popup, NavigationControl } from 'react-map-gl';
 import { useState, useEffect } from 'react';
 import { Room } from '@material-ui/icons';
 import DeckGL from 'deck.gl';
@@ -15,6 +15,9 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
+import mapboxgl from 'mapbox-gl';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
 const createData = (name, routes) => {
     const color = [101, 147, 245];
@@ -27,16 +30,22 @@ const createData = (name, routes) => {
 }
 const getName = (assets, pastRoute) => {
     if (pastRoute === null || pastRoute.length === 0) {
-        return null;
+        let name = "Name";
+        let type = "Type";
+        return { name, type };
     }
     else {
         for (let i = 0; i < assets.length; i++) {
             if (assets[i].route[assets[i].route.length - 1]._id === pastRoute[pastRoute.length - 1]._id) {
-                return assets[i].name;
+                let name = assets[i].name;
+                let type = assets[i].assetType;
+                return { name, type };
             }
         }
     }
-    return "Name";
+    let name = "Name";
+    let type = "Type";
+    return { name, type };
 }
 function App(props) {
     const history = useHistory();
@@ -44,7 +53,7 @@ function App(props) {
     const [pastRoute, setPastRoute] = useState(props.pastRoute.pastRoute);
     const [assets, setAssets] = useState(props.assets.assets);
     const data = createData("path-layer", pastRoute);
-    const name = getName(assets, pastRoute);
+    const { name, type } = getName(assets, pastRoute);
     const layer = [
         new PathLayer({
             id: "path-layer",
@@ -84,7 +93,7 @@ function App(props) {
     }, [assets])
     useEffect(() => {
         if (pastRoute !== null && pastRoute.length === 0 && props.pastRoute.errMess === null) {
-            toast.warn("There are no routes in the past 24 hours!")
+            toast.warn("There are no activities in the past 24 hours!")
         }
     }, [pastRoute]);
 
@@ -101,9 +110,12 @@ function App(props) {
                 style={{ width: "100vw", height: "100vh" }} layers={layer}
             >
                 <ReactMapGL
-                    mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
+                    mapboxApiAccessToken="pk.eyJ1Ijoia2VsdmluMDE3OSIsImEiOiJjbDNidTR6ejMwYjY4M2pxbnl3NHY0cnVmIn0.MpsIYRNO774eeAdhSACtsw"
                     mapStyle="mapbox://styles/mapbox/streets-v9"
                 />
+                <div style={{ position: "absolute", right: 50, top: 90, zIndex: 1 }}>
+                    <NavigationControl />
+                </div>
                 {
                     data[0].path.map((ele, index) => (
                         <React.Fragment key={index}>
@@ -120,14 +132,25 @@ function App(props) {
                             {
                                 currShown === ele && (
                                     <Popup longitude={currShown[0]} latitude={currShown[1]}
-                                        anchor="left" closeOnClick={false} onClose={() => { setCurrShown(null) }}>
+                                        anchor="left" closeOnClick={true} onClose={() => { setCurrShown(null) }}>
                                         <Card sx={{ maxWidth: 345 }}>
-                                            <CardMedia
-                                                component="img"
-                                                height="140"
-                                                image="/static/images/cards/contemplative-reptile.jpg"
-                                                alt="green iguana"
-                                            />
+                                            {
+                                                type === "truck" ? (
+                                                    <CardMedia
+                                                        component="img"
+                                                        height="140"
+                                                        image="/truckImg.jpg"
+                                                        alt="green iguana"
+                                                    />
+                                                ) : (
+                                                    <CardMedia
+                                                        component="img"
+                                                        height="140"
+                                                        image="/salesMan.jpg"
+                                                        alt="green iguana"
+                                                    />
+                                                )
+                                            }
                                             <CardContent>
                                                 <Typography gutterBottom variant="h5" component="div">
                                                     {name}

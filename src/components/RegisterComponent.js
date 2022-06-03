@@ -19,8 +19,8 @@ function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
+            <Link color="inherit" href="https://jumbotail-gps.herokuapp.com/">
+                JumboTail GPS
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -36,8 +36,7 @@ export default function SignUpSide(props) {
         initialValues: {
             firstName: "",
             lastName: "",
-            email: "",
-            password: ""
+            email: ""
         }
     });
     if (props.user.userLoading === true) {
@@ -58,7 +57,9 @@ export default function SignUpSide(props) {
         };
         props.registerUser(params);
     };
-
+    const random = () => {
+        return (Math.floor(Math.random() * 10) % 6) + 1;
+    }
     return (
         <ThemeProvider theme={theme}>
             <Grid container component="main" sx={{ height: '100vh' }}>
@@ -69,7 +70,7 @@ export default function SignUpSide(props) {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: 'url(https://source.unsplash.com/random)',
+                        backgroundImage: `url(/map${random()}.jpg)`,
                         backgroundRepeat: 'no-repeat',
                         backgroundColor: (t) =>
                             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -140,8 +141,6 @@ export default function SignUpSide(props) {
                                         label="Password"
                                         type="password"
                                         id="password"
-                                        value={values.password}
-                                        onChange={handleChange}
                                         autoComplete="new-password"
                                     />
                                 </Grid>

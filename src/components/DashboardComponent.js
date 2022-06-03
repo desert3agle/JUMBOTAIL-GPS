@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { StaticMap, Marker, Popup } from 'react-map-gl';
-import { useState } from 'react';
+import { StaticMap, Marker, Popup, NavigationControl } from 'react-map-gl';
+import { useState, useEffect } from 'react';
 import { Room, LocalShipping, Accessibility } from '@material-ui/icons';
-import DeckGL from 'deck.gl';
+import DeckGL, { FlyToInterpolator, MapView } from 'deck.gl';
 import { _MapContext as MapContext } from 'react-map-gl';
 import Stack from '@mui/material/Stack';
 import { Button } from '@mui/material';
@@ -20,11 +20,47 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import { CardActionArea } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { getBoundsForPoints, getPoints } from "../utils/portSetter";
+import { makeStyles } from "@material-ui/core/styles";
+import mapboxgl from 'mapbox-gl';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
+const useStyles = makeStyles({
+    root: {
+        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+            borderColor: "blue"
+        },
+        "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+            borderColor: "red"
+        },
+        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "purple"
+        },
+        "& .MuiOutlinedInput-input": {
+            color: "blue"
+        },
+        "&:hover .MuiOutlinedInput-input": {
+            color: "red"
+        },
+        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input": {
+            color: "purple"
+        },
+        "& .MuiInputLabel-outlined": {
+            color: "blue"
+        },
+        "&:hover .MuiInputLabel-outlined": {
+            color: "red"
+        },
+        "& .MuiInputLabel-outlined.Mui-focused": {
+            color: "purple"
+        }
+    }
+});
 const MarkLocation = (assetType) => {
-    if (assetType.assetType == "truck") {
+    if (assetType.assetType === "truck") {
         return (
             <LocalShipping style={
                 {
@@ -46,6 +82,7 @@ const MarkLocation = (assetType) => {
     }
 }
 function Dash(props) {
+    const classes = useStyles();
     const hist = useHistory();
     const [options, setOptions] = useLocalState("options", null);
     const [inputOptions, setInputOptions] = useLocalState("inputOptions", '');
@@ -59,12 +96,23 @@ function Dash(props) {
     const [downDiv, setDownDiv] = useLocalState("downDiv", 0);
     const [populate, setPopulate] = useState(() => {
         if (downDiv === 2) {
-            if (props.oneAsset.length === 0) {
+            if (props.oneAsset.oneAsset.length === 0) {
                 return [];
             }
             else {
                 return [...props.oneAsset.oneAsset];
             }
+        }
+        else if (downDiv === 1 && singleID !== null) {
+            let tempAssets = props.assets.assets;
+            for (let i = 0; i < tempAssets.length; i++) {
+                if (singleID.value === tempAssets[i]._id) {
+                    let temp = [];
+                    temp.push(tempAssets[i]);
+                    return temp;
+                }
+            }
+            return [];
         }
         else {
             return assets;
@@ -102,10 +150,17 @@ function Dash(props) {
         return {
             ...bounds,
             bearing: 0,
-            pitch: 0
+            pitch: 0,
+            transitionDuration: 2000,
+            transitionInterpolator: new FlyToInterpolator()
         }
     });
     const [currShown, setCurrShown] = useState([viewport.longitude, viewport.latitude]);
+    useEffect(() => {
+        if (downDiv === 2 && props.oneAsset.oneAsset.length === 0 && props.oneAsset.errMess === null) {
+            queryString(typeID, dateOne, dateTwo, props.getOneAsset);
+        }
+    }, [assets]);
     if (props.user.userLoading) {
         return (<div />);
     }
@@ -124,9 +179,12 @@ function Dash(props) {
             }}
         >
             <StaticMap
-                mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
+                mapboxApiAccessToken="pk.eyJ1Ijoia2VsdmluMDE3OSIsImEiOiJjbDNidTR6ejMwYjY4M2pxbnl3NHY0cnVmIn0.MpsIYRNO774eeAdhSACtsw"
                 mapStyle="mapbox://styles/mapbox/streets-v9"
             />
+            <div style={{ position: "absolute", right: 50, top: 90, zIndex: 1 }}>
+                <NavigationControl />
+            </div>
             {
                 populate.map((ele, index) => (
                     <React.Fragment key={index}>
@@ -138,7 +196,9 @@ function Dash(props) {
                                     latitude: ele.location.coordinates[1],
                                     zoom: 16,
                                     bearing: 0,
-                                    pitch: 0
+                                    pitch: 0,
+                                    transitionDuration: 2000,
+                                    transitionInterpolator: new FlyToInterpolator()
                                 })
                             }}
                         >
@@ -147,14 +207,45 @@ function Dash(props) {
                         {
                             currShown === ele.location.coordinates && (
                                 <Popup longitude={currShown[0]} latitude={currShown[1]}
-                                    anchor="right" closeOnClick={false} onClose={() => { setCurrShown(null) }}>
+                                    anchor="right" closeOnClick={true} onClose={() => {
+                                        setCurrShown(null);
+                                        setViewport(() => {
+                                            let bounds = ({
+                                                latitude: null,
+                                                longitude: null,
+                                                zoom: null
+                                            });
+                                            let coordinates = getPoints(assets);
+                                            if (assets.length !== 0) {
+                                                bounds = getBoundsForPoints(coordinates);
+                                            }
+                                            return {
+                                                ...bounds,
+                                                bearing: 0,
+                                                pitch: 0,
+                                                transitionDuration: 500,
+                                                transitionInterpolator: new FlyToInterpolator()
+                                            }
+                                        });
+                                    }}>
                                     <Card sx={{ maxWidth: 345 }}>
-                                        <CardMedia
-                                            component="img"
-                                            height="140"
-                                            image="/static/images/cards/contemplative-reptile.jpg"
-                                            alt="green iguana"
-                                        />
+                                        {
+                                            ele.assetType === "truck" ? (
+                                                <CardMedia
+                                                    component="img"
+                                                    height="140"
+                                                    image="/truckImg.jpg"
+                                                    alt="green iguana"
+                                                />
+                                            ) : (
+                                                <CardMedia
+                                                    component="img"
+                                                    height="140"
+                                                    image="/salesMan.jpg"
+                                                    alt="green iguana"
+                                                />
+                                            )
+                                        }
                                         <CardContent>
                                             <Typography gutterBottom variant="h5" component="div">
                                                 {ele.name}
@@ -164,7 +255,8 @@ function Dash(props) {
                                             </Typography>
                                         </CardContent>
                                         <CardActions>
-                                            <Stack spacing={2} direction="row">
+                                            <Stack direction={{ xs: "column", sm: "column", md: "row" }}
+                                                spacing={1}>
                                                 <Button variant="contained" onClick={(event) => {
                                                     props.getPastRoute(ele._id);
                                                     setDownDiv(0);
@@ -229,20 +321,74 @@ function Dash(props) {
                             setInputTypeID('');
                             setDateOne(new Date('2022-05-01'));
                             setDateTwo(null);
+                            setViewport(() => {
+                                let bounds = ({
+                                    latitude: null,
+                                    longitude: null,
+                                    zoom: null
+                                });
+                                let coordinates = getPoints(assets);
+                                if (assets.length !== 0) {
+                                    bounds = getBoundsForPoints(coordinates);
+                                }
+                                return {
+                                    ...bounds,
+                                    bearing: 0,
+                                    pitch: 0,
+                                    transitionDuration: 2000,
+                                    transitionInterpolator: new FlyToInterpolator()
+                                }
+                            });
                         }
-                        else if (newValue.value == 1) {
+                        else if (newValue.value === 1) {
                             setTypeID(null);
                             setInputTypeID('');
                             setDateOne(new Date('2022-05-01'));
                             setDateTwo(null);
                             setDownDiv(newValue.value);
                             setPopulate(assets);
+                            setViewport(() => {
+                                let bounds = ({
+                                    latitude: null,
+                                    longitude: null,
+                                    zoom: null
+                                });
+                                let coordinates = getPoints(assets);
+                                if (assets.length !== 0) {
+                                    bounds = getBoundsForPoints(coordinates);
+                                }
+                                return {
+                                    ...bounds,
+                                    bearing: 0,
+                                    pitch: 0,
+                                    transitionDuration: 2000,
+                                    transitionInterpolator: new FlyToInterpolator()
+                                }
+                            });
                         }
                         else {
                             setSingleID(null);
                             setInputSingleID('');
                             setDownDiv(newValue.value);
                             setPopulate(assets);
+                            setViewport(() => {
+                                let bounds = ({
+                                    latitude: null,
+                                    longitude: null,
+                                    zoom: null
+                                });
+                                let coordinates = getPoints(assets);
+                                if (assets.length !== 0) {
+                                    bounds = getBoundsForPoints(coordinates);
+                                }
+                                return {
+                                    ...bounds,
+                                    bearing: 0,
+                                    pitch: 0,
+                                    transitionDuration: 2000,
+                                    transitionInterpolator: new FlyToInterpolator()
+                                }
+                            });
                         }
                     }}
                     inputValue={inputOptions}
@@ -252,27 +398,63 @@ function Dash(props) {
                     id="controllable-states-options"
                     options={optionsArray}
                     sx={{ width: 250 }}
-                    renderInput={(params) => <TextField {...params} label="Filter Option" />}
+                    renderInput={(params) => <TextField {...params} className={classes.root} label="Filter Option" />}
                 />
                 <React.Fragment>
                     {
                         downDiv === 1 && (
                             <Autocomplete
+                                color='white'
                                 style={{ paddingTop: "10px", paddingLeft: "10px" }}
                                 value={singleID}
                                 onChange={(event, newValue) => {
                                     setSingleID(newValue);
                                     if (newValue === null) {
                                         setPopulate(assets);
+                                        setViewport(() => {
+                                            let bounds = ({
+                                                latitude: null,
+                                                longitude: null,
+                                                zoom: null
+                                            });
+                                            let coordinates = getPoints(assets);
+                                            if (assets.length !== 0) {
+                                                bounds = getBoundsForPoints(coordinates);
+                                            }
+                                            return {
+                                                ...bounds,
+                                                bearing: 0,
+                                                pitch: 0,
+                                                transitionDuration: 2000,
+                                                transitionInterpolator: new FlyToInterpolator()
+                                            }
+                                        });
                                     }
                                     else {
                                         let tempAssets = props.assets.assets;
                                         for (let i = 0; i < tempAssets.length; i++) {
                                             if (newValue.value === tempAssets[i]._id) {
-                                                console.log(tempAssets[i]);
                                                 let temp = [];
                                                 temp.push(tempAssets[i]);
                                                 setPopulate([...temp]);
+                                                setViewport(() => {
+                                                    let bounds = ({
+                                                        latitude: null,
+                                                        longitude: null,
+                                                        zoom: null
+                                                    });
+                                                    let coordinates = getPoints(temp);
+                                                    if (temp.length !== 0) {
+                                                        bounds = getBoundsForPoints(coordinates);
+                                                    }
+                                                    return {
+                                                        ...bounds,
+                                                        bearing: 0,
+                                                        pitch: 0,
+                                                        transitionDuration: 2000,
+                                                        transitionInterpolator: new FlyToInterpolator()
+                                                    }
+                                                });
                                                 break;
                                             }
                                         }
@@ -290,7 +472,7 @@ function Dash(props) {
                                     }
                                 })}
                                 sx={{ width: 250 }}
-                                renderInput={(params) => <TextField {...params} label="Filter By ID" />}
+                                renderInput={(params) => <TextField {...params} className={classes.root} label="Filter By ID" />}
                             />
                         )
                     }
@@ -311,7 +493,7 @@ function Dash(props) {
                                     id="controllable-states-typeID"
                                     options={typeArray}
                                     sx={{ width: 250 }}
-                                    renderInput={(params) => <TextField {...params} label="Asset Type" />}
+                                    renderInput={(params) => <TextField {...params} className={classes.root} label="Asset Type" />}
                                 />
                                 <Box width="250px" style={{ paddingTop: "10px", paddingLeft: "10px" }}>
                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -324,7 +506,7 @@ function Dash(props) {
                                                     setDateOne(newValue);
                                                     queryString(typeID, newValue, dateTwo, props.getOneAsset);
                                                 }}
-                                                renderInput={(params) => <TextField {...params} />}
+                                                renderInput={(params) => <TextField {...params} className={classes.root} />}
                                             />
                                         </Stack>
                                     </LocalizationProvider>
@@ -340,7 +522,7 @@ function Dash(props) {
                                                     setDateTwo(newValue);
                                                     queryString(typeID, dateOne, newValue, props.getOneAsset);
                                                 }}
-                                                renderInput={(params) => <TextField {...params} />}
+                                                renderInput={(params) => <TextField {...params} className={classes.root} />}
                                             />
                                         </Stack>
                                     </LocalizationProvider>

@@ -52,9 +52,6 @@ class Main extends Component {
     }
     componentDidMount() {
         this.props.userExist();
-        this.state = {
-            didAssetUpdate: false
-        }
     }
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.user !== this.props.user) {
@@ -81,9 +78,7 @@ class Main extends Component {
         }
     }
     componentWillMount() {
-        console.log("willmount");
         const socket = io("http://localhost:8080", {
-            // transports: ['websocket'],
             withCredentials: true
         });
         socket.on("upatedAsset", (data) => {

@@ -55,7 +55,7 @@ export default function ColumnGroupingTable(props) {
             <Table sx={{ minWidth: 700 }} aria-label="customized table">
                 <TableHead>
                     <TableRow>
-                        <StyledTableCell>Driver Name (UID)</StyledTableCell>
+                        <StyledTableCell>Name (UID)</StyledTableCell>
                         <StyledTableCell align="right">Asset Type</StyledTableCell>
                         <StyledTableCell align="right">Longitude</StyledTableCell>
                         <StyledTableCell align="right">Latitude</StyledTableCell>

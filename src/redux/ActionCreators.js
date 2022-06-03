@@ -36,7 +36,14 @@ export const getOneAsset = (str) => (dispatch) => {
             }
         })
         .then(response => response.json())
-        .then(assets => dispatch(addOneAssets(assets)))
+        .then(assets => {
+            if (assets.length === 0) {
+                return dispatch(oneAssetsFailed("Empty Array"));
+            }
+            else {
+                return dispatch(addOneAssets(assets));
+            }
+        })
         .catch(err => dispatch(oneAssetsFailed(err.message)));
 };
 
