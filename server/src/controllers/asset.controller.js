@@ -121,28 +121,35 @@ exports.trackAsset = async(req, res) => {
         
         let {startTime, endTime} = req.query;
 
-        if(endTime){
-            if(isIsoDate(endTime)) endTime = new Date(endTime);
-            else {
-                return res.status(400).send({
-                    message: "Invalid End Time"
-                })
-            }
-        } else {
+        if(!startTime && !endTime){
             endTime = new Date();
-        }
-
-        if(startTime){
-            if(isIsoDate(startTime)) startTime =  new Date(startTime);
-            else {
-                return res.status(400).send({
-                    message: "Invalid Start Time"
-                })
-            }
-        } else {
             startTime = new Date(endTime.getTime() - 1000 * ( 24 * 60 * 60 ));
         }
-        
+        else{
+            
+            if(endTime){
+                if(isIsoDate(endTime)) endTime = new Date(endTime);
+                else {
+                    return res.status(400).send({
+                        message: "Invalid End Time"
+                    })
+                }
+            } else {
+                endTime = new Date();
+            }
+
+            if(startTime){
+                if(isIsoDate(startTime)) startTime =  new Date(startTime);
+                else {
+                    return res.status(400).send({
+                        message: "Invalid Start Time"
+                    })
+                }
+            } else {
+                startTime = new Date(-8640000000000000);
+            }
+            console.log(startTime, endTime);
+        }
         const response = [];
 
         for(let i = 0; i < asset.route.length; i++) {
