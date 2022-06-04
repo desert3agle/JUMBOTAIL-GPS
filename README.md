@@ -1,4 +1,4 @@
-# Jumbotail - GPS Asset Tracking Application :earth_asia:
+# Jumbotail - GPS Asset Tracking Application
 
 ## Table of contents
 - [Overview](#overview)
@@ -31,7 +31,7 @@ Being able to track movement of delivery persons and fleet on a map has become a
 10. Notifcations on asset movements. 
 
 ## Links
-* API documentation [here]()
+* API documentation [here](https://documenter.getpostman.com/view/10910666/Uz5Govwb)
 * Deployed [here](https://jumbotail-gps.herokuapp.com/)
 * Demo video [here](https://drive.google.com/file/d/14JOisLK-bkjgnAyZmUeGAoFjLlOcIkyT/view?usp=sharing)
 ## Tech Stack
@@ -44,92 +44,9 @@ Being able to track movement of delivery persons and fleet on a map has become a
  * [Socket  IO](https://socket.io/) -  JavaScript  library  for  realtime  web  applications
  * [MongoDB](https://www.mongodb.com/)  -  General  purpose,  document  based  NoSQL  Database
 
-## File Structure
-```
-├── client									# Frontend
-│   ├── package.json
-│   ├── public
-│   │   ├── index.html
-│   │   ├── logoJT.png
-│   │   ├── manifest.json
-│   │   ├── robots.txt
-│   │   ├── salesMan.jpg
-│   │   └── truckImg.jpg
-│   ├── README.md
-│   ├── src
-│   │   ├── App.css
-│   │   ├── App.js
-│   │   ├── App.test.js
-│   │   ├── components
-│   │   │   ├── AboutComponent.js
-│   │   │   ├── DashboardComponent.js
-│   │   │   ├── FenceComponent.js
-│   │   │   ├── HeaderComponent.js
-│   │   │   ├── LoginComponent.js
-│   │   │   ├── MainComponent.js
-│   │   │   ├── MapComponent.js
-│   │   │   ├── RegisterComponent.js
-│   │   │   └── RouteComponent.js
-│   │   ├── hooks
-│   │   │   └── useForm.js
-│   │   ├── index.css
-│   │   ├── index.js
-│   │   ├── logo.svg
-│   │   ├── redux
-│   │   │   ├── ActionCreators.js
-│   │   │   ├── ActionTypes.js
-│   │   │   ├── assets.js
-│   │   │   ├── baseUrl.js
-│   │   │   ├── configureStore.js
-│   │   │   ├── findOneAsset.js
-│   │   │   ├── geometryMessage.js
-│   │   │   ├── oneAsset.js
-│   │   │   ├── pastRoute.js
-│   │   │   ├── routeFenceData.js
-│   │   │   └── user.js
-│   │   ├── reportWebVitals.js
-│   │   ├── setupTests.js
-│   │   └── utils
-│   │       ├── localState.js
-│   │       ├── portSetter.js
-│   │       ├── queryString.js
-│   │       └── responsiveButton.js
-│   └── yarn.lock
-└── server									#Backend						
-    ├── package.json
-    ├── package-lock.json
-    ├── src
-    │   ├── config
-    │   │   ├── config.env.template
-    │   │   └── db.js
-    │   ├── controllers
-    │   │   ├── asset.controller.js
-    │   │   ├── geofence.controller.js
-    │   │   ├── georoute.controller.js
-    │   │   └── user.controller.js
-    │   ├── index.js
-    │   ├── middlewares
-    │   │   └── auth.js
-    │   ├── models
-    │   │   ├── asset.model.js
-    │   │   └── user.model.js
-    │   ├── routes
-    │   │   └── v1
-    │   │       ├── asset.routes.js
-    │   │       └── user.routes.js
-    │   └── utils
-    │       ├── geofence.utils.js
-    │       ├── georoute.utils.js
-    │       └── validation.utils.js
-    └── tests
-        ├── integration
-        │   ├── asset.tests.js
-        │   └── user.tests.js
-        └── unit
-            └── unit.tests.js
+### Tools
+ * [Postman](https://www.postman.com/)  -  For api testing and documentation
 
-19 directories, 62 files
-```
 ## Getting started
 ### Local build
 #### Frontend
@@ -188,4 +105,5 @@ heroku config:set ENV_VAR=<value>
 <a href="https://imgur.com/unF7hei"><img src="https://i.imgur.com/unF7hei.png" title="source: imgur.com"  
 width="350px" height="600px"
 /></a>
+
 
