@@ -36,7 +36,12 @@ Being able to track movement of delivery persons and fleet on a map has become a
 * Demo video [here](https://drive.google.com/file/d/14JOisLK-bkjgnAyZmUeGAoFjLlOcIkyT/view?usp=sharing)
 ## Tech Stack
 ### Frontend
-
+ * [React](https://reactjs.org/) - Front-end JavaScript library
+ * [Mapbox](https://www.mapbox.com/)  - For Map Api 
+ * [deck.gl](https://deck.gl/) - Visualization framework built on Mapbox 
+ * [react-map-gl](https://visgl.github.io/react-map-gl/) - React wrapper for Mapbox GL   
+ * [nebula.gl](https://nebula.gl/) - A suite of 3D-enabled data editing overlays, suitable for deck.gl.
+ * [material-ui](https://mui.com/) - UI tools for React
 ### Backend
 
  * [Node.js](https://nodejs.org/en/)  -  Evented  I/O  for  backend
@@ -50,6 +55,21 @@ Being able to track movement of delivery persons and fleet on a map has become a
 ## Getting started
 ### Local build
 #### Frontend
+It requires [React](https://reactjs.org/) to run.
+
+Install the dependencies
+```sh
+cd client/
+yarn install
+```
+Setup environments variables. (fill in .env template)
+```sh
+mv .env.template .env
+```
+Start the server
+```sh
+yarn start
+```
 #### Backend
 It requires [Node.js](https://nodejs.org/) v14+ and [MongoDB](https://www.mongodb.com) v4+ to run.
 
@@ -105,5 +125,3 @@ heroku config:set ENV_VAR=<value>
 <a href="https://imgur.com/unF7hei"><img src="https://i.imgur.com/unF7hei.png" title="source: imgur.com"  
 width="350px" height="600px"
 /></a>
-
-

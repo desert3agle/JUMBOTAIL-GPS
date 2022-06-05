@@ -2,23 +2,22 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const cors = require('cors');
+const morgan = require('morgan');
 const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
-const http = require('http')
-const socketio = require('socket.io')
-const server = http.createServer(app)
+const http = require('http');
+const socketio = require('socket.io');
+const server = http.createServer(app);
+
+dotenv.config({ path: __dirname+'/config/config.env' });
+
+
 const io = socketio(server, {
     cors : {
         origin : process.env.ORIGIN,
         credentials : true
     }
 })
-
-
-const morgan = require('morgan');
-
-// load env vars
-dotenv.config({ path: __dirname+'/config/config.env' });
 
 // Connect to database
 connectDB();
@@ -36,7 +35,9 @@ exports.emitNotification = (emitEvent, emitMessage) => {
 }
 
 //morgan logger
-app.use(morgan('tiny'));
+if(process.env.NODE_ENV !== "test") {
+    app.use(morgan('tiny'));
+}
 
 // Body parser
 app.use(express.json());
@@ -60,3 +61,5 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
     console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
+
+module.exports = app;

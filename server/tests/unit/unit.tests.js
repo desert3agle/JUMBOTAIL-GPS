@@ -4,7 +4,7 @@ const { isLocationOnPath } = require('../../src/utils/georoute.utils');
 const { isIsoDate, isClosed, isValidGeofence, isValidLocation, isValidMail} = require('../../src/utils/validation.utils');
 
 
-describe('------- UNIT-TESTS -------\n',  () => {
+describe('-- UNIT-TESTS --\n',  () => {
     
     describe('1. Validation utility functions unit tests',  () => {
 
