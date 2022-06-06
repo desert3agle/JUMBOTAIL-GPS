@@ -5,7 +5,6 @@
 - [Features](#features)
 - [Links](#links)
 - [Tech Stack](#tech-stack)
-- [File Structure](#file-structure)
 - [Getting Started](#getting-started)
 - [Deployment](#deployment)
 - [Developers](#developers)
@@ -87,7 +86,7 @@ Start the server
 npm run start
 ```
 **Testing**  <br>
-Setup environments variables. 
+Make sure you have mochajs installed globally, Setup environments variables. 
 ```sh
 npm run test
 ```
